@@ -11,8 +11,8 @@ export default function NotesPage() {
 
   // Mock notes if database is empty
   const displayNotes: Note[] = notes.length > 0 ? notes : [
-    { id: '1', title: 'Ý tưởng đồ án', content: '<p>Sử dụng Firebase và Next.js để làm hệ thống...</p>', userId: 'mock', tags: [], lastEditedAt: new Date() },
-    { id: '2', title: 'Công thức Đạo hàm', content: '<p>sin(x)\' = cos(x), cos(x)\' = -sin(x)...</p>', userId: 'mock', tags: [], lastEditedAt: new Date() }
+    { id: '1', title: 'Ý tưởng đồ án', content: '<p>Sử dụng Firebase và Next.js để làm hệ thống...</p>', tags: [], lastEditedAt: new Date() },
+    { id: '2', title: 'Công thức Đạo hàm', content: '<p>sin(x)\' = cos(x), cos(x)\' = -sin(x)...</p>', tags: [], lastEditedAt: new Date() }
   ];
 
   const selectedNote = displayNotes.find(n => n.id === selectedNoteId) || null;
