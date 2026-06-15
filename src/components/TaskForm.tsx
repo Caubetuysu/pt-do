@@ -45,10 +45,11 @@ export function TaskForm() {
           <div>
             <label className="block text-sm text-zinc-400 mb-1">Hạn chót (Deadline)</label>
             <input 
-              type="datetime-local" 
+              type="date" 
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-zinc-100 focus:outline-none focus:border-zinc-600 color-scheme-dark"
+              required
             />
           </div>
           <div>
