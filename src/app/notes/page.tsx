@@ -1,7 +1,22 @@
-import React from 'react';
+"use client";
+
+import React, { useState } from 'react';
 import { NoteEditor } from '../../components/NoteEditor';
+import { useStore } from '../../store/useStore';
+import { Note } from '../../types';
 
 export default function NotesPage() {
+  const notes = useStore(state => state.notes);
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
+
+  // Mock notes if database is empty
+  const displayNotes = notes.length > 0 ? notes : [
+    { id: '1', title: 'Ý tưởng đồ án', content: '<p>Sử dụng Firebase và Next.js để làm hệ thống...</p>', userId: 'mock', lastEditedAt: new Date() },
+    { id: '2', title: 'Công thức Đạo hàm', content: '<p>sin(x)\' = cos(x), cos(x)\' = -sin(x)...</p>', userId: 'mock', lastEditedAt: new Date() }
+  ];
+
+  const selectedNote = displayNotes.find(n => n.id === selectedNoteId) || null;
+
   return (
     <div className="h-screen flex flex-col p-8 max-w-7xl mx-auto gap-8">
       <header className="border-b border-zinc-800 pb-6 shrink-0">
@@ -19,21 +34,36 @@ export default function NotesPage() {
             <button className="text-sm bg-zinc-800 text-zinc-300 hover:text-white px-3 py-1 rounded transition-colors">+</button>
           </div>
           <div className="overflow-y-auto p-4 space-y-2">
-            {/* Mock Notes */}
-            <div className="p-3 bg-zinc-800 rounded border border-zinc-700 cursor-pointer">
-              <h3 className="font-medium text-zinc-200">Ý tưởng đồ án</h3>
-              <p className="text-xs text-zinc-400 mt-1 line-clamp-1">Sử dụng Firebase và Next.js để làm hệ thống...</p>
-            </div>
-            <div className="p-3 bg-transparent hover:bg-zinc-800/50 rounded border border-transparent cursor-pointer transition-colors">
-              <h3 className="font-medium text-zinc-400">Công thức Đạo hàm</h3>
-              <p className="text-xs text-zinc-500 mt-1 line-clamp-1">sin(x)' = cos(x), cos(x)' = -sin(x)...</p>
-            </div>
+            {displayNotes.map(note => (
+              <div 
+                key={note.id}
+                onClick={() => setSelectedNoteId(note.id)}
+                className={`p-3 rounded border cursor-pointer transition-colors ${
+                  selectedNoteId === note.id 
+                    ? 'bg-zinc-800 border-zinc-700' 
+                    : 'bg-transparent border-transparent hover:bg-zinc-800/50'
+                }`}
+              >
+                <h3 className={`font-medium ${selectedNoteId === note.id ? 'text-zinc-200' : 'text-zinc-400'}`}>
+                  {note.title}
+                </h3>
+                <p className="text-xs text-zinc-500 mt-1 line-clamp-1">
+                  {note.content.replace(/<[^>]+>/g, '') || "Trống"}
+                </p>
+              </div>
+            ))}
           </div>
         </aside>
 
         {/* Editor Area */}
         <main className="flex-1 min-w-0">
-          <NoteEditor />
+          {selectedNoteId ? (
+            <NoteEditor note={selectedNote} />
+          ) : (
+            <div className="h-full flex items-center justify-center border border-zinc-800 rounded-xl bg-zinc-950/50 text-zinc-500">
+              Chọn một ghi chú ở danh sách bên trái để xem và sửa.
+            </div>
+          )}
         </main>
       </div>
     </div>
