@@ -1,27 +1,24 @@
 import React, { useState } from 'react';
-import { useStore } from '../store/useStore';
+import { taskService } from '../services/taskService';
 import { Task } from '../types';
 
 export function TaskForm() {
-  const addTask = useStore((state) => state.addTask);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [matrix, setMatrix] = useState<Task['eisenhowerMatrix']>('Q2');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !dueDate) return;
 
-    addTask({
-      id: Date.now().toString(),
+    await taskService.addTask("mock-user-123", {
       title,
       description,
       dueDate: new Date(dueDate),
       eisenhowerMatrix: matrix,
       status: 'TODO',
       subtasks: [],
-      createdAt: new Date(),
     });
 
     setTitle('');
