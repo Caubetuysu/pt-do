@@ -9,13 +9,13 @@ import { diaryService, CheckIn, reverseGeocode } from '@/services/diaryService';
 import { fetchOSRMRoute } from '@/services/routingService';
 import { userService } from '@/services/userService';
 import { auth } from '@/lib/firebase';
-import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { FriendsPanel } from '@/components/diary/FriendsPanel';
 import { questService } from '@/services/questService';
 import { fetchWeather, getWeatherEmoji, getWeatherDesc } from '@/services/weatherService';
 import { WrapUpModal } from '@/components/diary/WrapUpModal';
 import { UserProfile } from '@/services/userService';
-import { LocateFixed, Navigation, MapPin, Award, Plane, X, LogIn, Users, Calendar, Sparkles } from 'lucide-react';
+import { LocateFixed, Navigation, MapPin, Award, Plane, X, LogIn, LogOut, Users, Calendar, Sparkles } from 'lucide-react';
 
 interface Hotspot {
   lat: number;
@@ -375,10 +375,18 @@ export default function DiaryPage() {
             <Navigation className="w-5 h-5 text-emerald-500 shrink-0" />
             <span className="truncate">Nhật Ký Hành Trình</span>
           </h1>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             {currentUser.photoURL && (
               <img src={currentUser.photoURL} alt="Avatar" className="w-8 h-8 rounded-full border border-border" />
             )}
+            <button 
+              onClick={() => signOut(auth)}
+              className="p-2 bg-secondary/50 hover:bg-red-500/20 hover:text-red-500 rounded-full transition-colors flex items-center justify-center"
+              aria-label="Đăng xuất"
+              title="Đăng xuất"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
             <button 
               onClick={() => setIsSidebarOpen(false)} 
               className="p-2 bg-secondary/50 hover:bg-secondary rounded-full transition-colors flex items-center justify-center shadow-sm"
