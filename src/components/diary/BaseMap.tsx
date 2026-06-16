@@ -4,7 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet-geosearch/dist/geosearch.css';
 import L from 'leaflet';
+import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
 import { CheckIn } from '@/services/diaryService';
 import { MapPin, Plus } from 'lucide-react';
 
@@ -25,6 +27,31 @@ const createCustomIcon = () => {
     iconAnchor: [12, 24],
   });
 };
+
+function SearchField() {
+  const map = useMap();
+  useEffect(() => {
+    // @ts-ignore
+    const provider = new OpenStreetMapProvider();
+    // @ts-ignore
+    const searchControl = new GeoSearchControl({
+      provider,
+      style: 'bar',
+      showMarker: false,
+      retainZoomLevel: false,
+      animateZoom: true,
+      autoClose: true,
+      searchLabel: 'Nhập địa điểm...',
+      keepResult: true,
+    });
+
+    map.addControl(searchControl);
+    return () => {
+      map.removeControl(searchControl);
+    };
+  }, [map]);
+  return null;
+}
 
 interface BaseMapProps {
   checkIns: CheckIn[];
@@ -72,6 +99,7 @@ export default function BaseMap({ checkIns, onMapClick, userLocation }: BaseMapP
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       
+      <SearchField />
       <MapEventHandler onClick={onMapClick} />
       <UserLocationMarker location={userLocation} />
 

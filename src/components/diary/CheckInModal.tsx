@@ -17,10 +17,20 @@ export function CheckInModal({ location, onClose, onSubmit }: CheckInModalProps)
     
     setIsSubmitting(true);
     try {
-      await onSubmit(text);
+      // Set a 10-second timeout for the Firebase write
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('TIMEOUT')), 10000)
+      );
+      
+      await Promise.race([onSubmit(text), timeoutPromise]);
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Submit error', error);
+      if (error.message === 'TIMEOUT') {
+        alert('Lưu thất bại: Hết thời gian chờ. Có thể do Firebase Rules đang khoá quyền ghi hoặc mất mạng.');
+      } else {
+        alert('Lưu thất bại: Vui lòng kiểm tra quyền Firebase hoặc kết nối mạng.');
+      }
       setIsSubmitting(false);
     }
   };

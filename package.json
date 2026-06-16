@@ -20,6 +20,7 @@
     "firebase": "^12.14.0",
     "katex": "^0.17.0",
     "leaflet": "^1.9.4",
+    "leaflet-geosearch": "^4.4.0",
     "lucide-react": "^1.18.0",
     "next": "16.2.9",
     "notion-client": "^7.10.0",

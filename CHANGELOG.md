@@ -18,3 +18,4 @@ otion-client\ và thêm route dynamic \/notion/[pageId]\ d? render n?i dung Notion
 - **Fix Checkbox Nhi?m V?**: Ðã thêm ch?c nang cho phép b?m vào t?ng dòng công vi?c d? chuy?n tr?ng thái TODO/DONE.
 - **Fix Caching Notion Page**: Ðã c?u hình Next.js t? d?ng c?p nh?t l?i trang Notion m?i 60 giây thay vì cache vinh vi?n lúc Build, giúp t?i thành công trang Notion.
 - **Nh?t Ký Hành Trình**: Tích h?p b?n d? Leaflet, cho phép l?y d?nh v? GPS và luu check-in (t?a d? + ghi chú) vào Firebase. Hi?n th? L?ch s? theo Timeline.
+- **Travel Diary Home**: Ðã bi?n b?n d? nh?t ký thành trang ch?, thay th? cho todo list. Thêm thanh tìm ki?m d?a di?m và fix l?i treo khi luu vào Firestore.
