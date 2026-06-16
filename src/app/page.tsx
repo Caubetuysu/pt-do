@@ -15,6 +15,21 @@ interface Hotspot {
   count: number;
 }
 
+// Helper for distance calculation
+function getDistanceInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+  var R = 6371; // Radius of the earth in km
+  var dLat = (lat2-lat1) * (Math.PI/180);
+  var dLon = (lon2-lon1) * (Math.PI/180); 
+  var a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * (Math.PI/180)) * Math.cos(lat2 * (Math.PI/180)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+    ; 
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  var d = R * c; 
+  return d;
+}
+
 export default function DiaryPage() {
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number, lng: number } | null>(null);
@@ -27,10 +42,16 @@ export default function DiaryPage() {
     loadCheckIns();
   }, []);
 
-  const hotspots = useMemo(() => {
+  const { hotspots, totalDistance, routeDays } = useMemo(() => {
     const spots: Hotspot[] = [];
-    checkIns.forEach(checkIn => {
-      // 0.001 degrees is approx 111 meters
+    
+    // Sort chronologically for polyline
+    const sorted = [...checkIns].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    let distance = 0;
+    const daysMap = new Map<string, {lat: number, lng: number}[]>();
+
+    sorted.forEach((checkIn, i) => {
+      // Hotspot calculation
       const existing = spots.find(
         h => Math.abs(h.lat - checkIn.location.lat) < 0.001 && 
              Math.abs(h.lng - checkIn.location.lng) < 0.001
@@ -42,8 +63,25 @@ export default function DiaryPage() {
       } else {
         spots.push({ lat: checkIn.location.lat, lng: checkIn.location.lng, count: 1 });
       }
+
+      // Route and Distance Calculation
+      if (i > 0) {
+        const prev = sorted[i-1];
+        distance += getDistanceInKm(prev.location.lat, prev.location.lng, checkIn.location.lat, checkIn.location.lng);
+      }
+      
+      const dateStr = checkIn.timestamp.toLocaleDateString('vi-VN');
+      if (!daysMap.has(dateStr)) {
+        daysMap.set(dateStr, []);
+      }
+      daysMap.get(dateStr)!.push(checkIn.location);
     });
-    return spots.filter(h => h.count >= 2);
+
+    return {
+      hotspots: spots.filter(h => h.count >= 2),
+      totalDistance: distance,
+      routeDays: Array.from(daysMap.entries()).map(([dateStr, points]) => ({ dateStr, points }))
+    };
   }, [checkIns]);
 
   const loadCheckIns = async () => {
@@ -155,6 +193,19 @@ export default function DiaryPage() {
 
       {/* Main Content - Map */}
       <div className="flex-1 relative h-2/3 lg:h-full">
+        {/* Distance Overlay */}
+        <div className="absolute top-6 right-6 z-[1000] bg-background/90 backdrop-blur-md px-4 py-3 rounded-xl shadow-lg border border-border flex items-center gap-3">
+          <div className="bg-emerald-100 dark:bg-emerald-500/20 p-2 rounded-full">
+            <Navigation className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Tổng Quãng Đường</p>
+            <p className="text-xl font-bold text-foreground">
+              {totalDistance > 10 ? Math.round(totalDistance) : totalDistance.toFixed(1)} <span className="text-sm font-normal text-muted-foreground">km</span>
+            </p>
+          </div>
+        </div>
+
         {/* Floating Actions */}
         <div className="absolute bottom-6 right-6 z-[1000] flex flex-col gap-3 items-end">
           {/* GPS Locate Only Button */}
@@ -190,6 +241,7 @@ export default function DiaryPage() {
           onConfirmDraft={handleConfirmDraft}
           onCancelDraft={() => setDraftLocation(null)}
           hotspots={hotspots}
+          routeDays={routeDays}
         />
       </div>
 

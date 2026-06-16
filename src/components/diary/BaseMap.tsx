@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, Polyline } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-geosearch/dist/geosearch.css';
@@ -66,6 +66,7 @@ interface BaseMapProps {
   onConfirmDraft?: () => void;
   onCancelDraft?: () => void;
   hotspots?: { lat: number, lng: number, count: number }[];
+  routeDays?: { dateStr: string, points: { lat: number, lng: number }[] }[];
 }
 
 // Map Event Handler Component
@@ -154,7 +155,7 @@ function DraftMarker({
 }
 
 export default function BaseMap({ 
-  checkIns, onMapClick, userLocation, draftLocation, draftAddress, onConfirmDraft, onCancelDraft, hotspots 
+  checkIns, onMapClick, userLocation, draftLocation, draftAddress, onConfirmDraft, onCancelDraft, hotspots, routeDays 
 }: BaseMapProps) {
   const defaultCenter: [number, number] = [10.762622, 106.660172]; // HCMC Default
 
@@ -178,6 +179,14 @@ export default function BaseMap({
         onConfirm={onConfirmDraft} 
         onCancel={onCancelDraft}
       />
+
+      {routeDays && routeDays.map((day, idx) => (
+        <Polyline 
+          key={`route-${idx}`} 
+          positions={day.points.map(p => [p.lat, p.lng])} 
+          pathOptions={{ color: '#3b82f6', weight: 3, dashArray: '10, 10' }} 
+        />
+      ))}
 
       {hotspots && hotspots.map((spot, idx) => (
         <CircleMarker 
