@@ -212,7 +212,7 @@ export default function DiaryPage() {
         {/* Toggle Sidebar Button (Airplane) */}
         <button 
           onClick={() => setIsSidebarOpen(true)}
-          className={`absolute top-6 left-6 z-[1000] bg-emerald-500 text-white p-3 rounded-xl shadow-lg hover:bg-emerald-600 transition-all active:scale-95 flex items-center gap-2 ${isSidebarOpen ? 'opacity-0 -translate-x-4 pointer-events-none' : 'opacity-100 translate-x-0'}`}
+          className={`absolute top-24 left-4 z-[1000] bg-emerald-500 text-white p-3 rounded-xl shadow-lg hover:bg-emerald-600 transition-all active:scale-95 flex items-center gap-2 ${isSidebarOpen ? 'opacity-0 -translate-x-4 pointer-events-none' : 'opacity-100 translate-x-0'}`}
           title="Mở Nhật Ký Hành Trình"
         >
           <Plane className="w-6 h-6" />
