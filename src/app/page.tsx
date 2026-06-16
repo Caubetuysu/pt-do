@@ -91,6 +91,11 @@ export default function DiaryPage() {
     await loadCheckIns();
   };
 
+  const handleTimelineClick = (lat: number, lng: number) => {
+    setUserLocation({ lat, lng });
+    // This will trigger the UserLocationMarker in BaseMap to flyTo this location
+  };
+
   return (
     <div className="flex flex-col lg:flex-row h-screen w-full bg-background overflow-hidden">
       
@@ -103,7 +108,7 @@ export default function DiaryPage() {
           </h1>
         </div>
         <div className="h-[calc(100%-60px)]">
-          <Timeline checkIns={checkIns} />
+          <Timeline checkIns={checkIns} onItemClick={handleTimelineClick} />
         </div>
       </div>
 

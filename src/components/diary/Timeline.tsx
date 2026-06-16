@@ -4,9 +4,10 @@ import { MapPin } from 'lucide-react';
 
 interface TimelineProps {
   checkIns: CheckIn[];
+  onItemClick?: (lat: number, lng: number) => void;
 }
 
-export function Timeline({ checkIns }: TimelineProps) {
+export function Timeline({ checkIns, onItemClick }: TimelineProps) {
   if (checkIns.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-8 text-center">
@@ -29,7 +30,10 @@ export function Timeline({ checkIns }: TimelineProps) {
             </div>
             
             {/* Content */}
-            <div className="bg-secondary/30 rounded-lg p-4 border border-border/50 hover:bg-secondary/50 transition-colors">
+            <div 
+              className="bg-secondary/30 rounded-lg p-4 border border-border/50 hover:bg-secondary/50 transition-colors cursor-pointer active:scale-95"
+              onClick={() => onItemClick?.(checkIn.location.lat, checkIn.location.lng)}
+            >
               <div className="text-sm font-semibold text-emerald-500 mb-2">
                 {checkIn.timestamp.toLocaleDateString('vi-VN', {
                   weekday: 'short',
