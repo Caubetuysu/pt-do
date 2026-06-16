@@ -7,9 +7,11 @@ import { CheckInModal } from '@/components/diary/CheckInModal';
 import { StatisticsModal } from '@/components/diary/StatisticsModal';
 import { diaryService, CheckIn, reverseGeocode } from '@/services/diaryService';
 import { fetchOSRMRoute } from '@/services/routingService';
+import { userService } from '@/services/userService';
 import { auth } from '@/lib/firebase';
-import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User, signOut } from 'firebase/auth';
-import { LocateFixed, Navigation, MapPin, Award, Plane, X, LogIn, LogOut, Calendar } from 'lucide-react';
+import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User } from 'firebase/auth';
+import { FriendsPanel } from '@/components/diary/FriendsPanel';
+import { LocateFixed, Navigation, MapPin, Award, Plane, X, LogIn, Users, Calendar } from 'lucide-react';
 
 interface Hotspot {
   lat: number;
@@ -41,21 +43,29 @@ export default function DiaryPage() {
   const [draftAddress, setDraftAddress] = useState<string>("Đang tải địa chỉ...");
   const [showStats, setShowStats] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showFriends, setShowFriends] = useState(false);
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
+  const [friendCheckInGroups, setFriendCheckInGroups] = useState<{uid: string, name: string, photo: string, checkIns: CheckIn[]}[]>([]);
 
   const [routedDistance, setRoutedDistance] = useState<number>(0);
   const [routedDays, setRoutedDays] = useState<{dateStr: string, points: {lat: number, lng: number}[]}[]>([]);
   const [isRouting, setIsRouting] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       setIsAuthChecking(false);
       if (user) {
         loadCheckIns(user.uid);
+        // Create or update user profile in Firestore
+        await userService.createOrUpdateProfile(user.uid, {
+          displayName: user.displayName || 'Người dùng',
+          photoURL: user.photoURL || '',
+          email: user.email || ''
+        });
       } else {
         setCheckIns([]);
         setRoutedDays([]);
@@ -307,6 +317,22 @@ export default function DiaryPage() {
   return (
     <div className="relative h-screen w-full bg-background overflow-hidden">
       
+      {/* Friends Panel - Sliding from right */}
+      <div className={`absolute top-0 right-0 h-full w-full sm:w-96 bg-card z-[2000] shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${showFriends ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="p-4 border-b border-border bg-background flex items-center justify-between shadow-sm sticky top-0">
+          <h2 className="text-lg font-bold flex items-center gap-2">
+            <Users className="w-5 h-5 text-blue-500" />
+            Bạn Bè
+          </h2>
+          <button onClick={() => setShowFriends(false)} className="p-2 bg-secondary/50 hover:bg-secondary rounded-full transition-colors">
+            <X className="w-5 h-5 text-foreground" />
+          </button>
+        </div>
+        <div className="flex-1 overflow-hidden">
+          <FriendsPanel currentUser={currentUser} onFriendCheckInsChange={setFriendCheckInGroups} />
+        </div>
+      </div>
+      
       {/* Sidebar - Timeline (Sliding drawer) */}
       <div className={`absolute top-0 left-0 h-full w-full sm:w-96 bg-card z-[2000] shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-4 border-b border-border bg-background flex items-center justify-between shadow-sm z-10 sticky top-0">
@@ -385,11 +411,20 @@ export default function DiaryPage() {
 
         {/* Floating Actions */}
         <div className="absolute bottom-6 right-6 z-[1000] flex flex-col gap-3 items-end">
+          {/* Friends Button */}
+          <button 
+            onClick={() => { setShowFriends(true); setIsSidebarOpen(false); }}
+            className="bg-background text-foreground p-3 rounded-full shadow-lg border border-border hover:bg-secondary transition-colors active:scale-95 flex items-center justify-center"
+            title="Bạn Bè"
+          >
+            <Users className="w-6 h-6 text-blue-500" />
+          </button>
+
           {/* Stats Button */}
           <button 
             onClick={() => setShowStats(true)}
             className="bg-background text-foreground p-3 rounded-full shadow-lg border border-border hover:bg-secondary transition-colors active:scale-95 flex items-center justify-center"
-            title="Bảng Phong Thần (Thống Kê)"
+            title="Bảng Phông Thần (Thống Kê)"
           >
             <Award className="w-6 h-6 text-yellow-500" />
           </button>
