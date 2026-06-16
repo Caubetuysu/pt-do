@@ -63,6 +63,11 @@ export function TaskDashboard() {
     return `${startStr} → ${endStr}`;
   };
 
+  const toggleTaskStatus = async (id: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'DONE' ? 'TODO' : 'DONE';
+    await taskService.updateTask(id, { status: newStatus as any });
+  };
+
   return (
     <div className="flex flex-col w-full mb-16">
       {/* Header */}
@@ -93,6 +98,7 @@ export function TaskDashboard() {
         {tasks.map((task) => (
           <div 
             key={task.id} 
+            onClick={() => toggleTaskStatus(task.id, task.status)}
             className="group flex items-center justify-between py-[6px] border-b border-border/50 hover:bg-secondary/50 transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-3 flex-1 overflow-hidden">
