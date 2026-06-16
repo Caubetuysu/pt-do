@@ -190,6 +190,22 @@ export default function DiaryPage() {
     try {
       const data = await diaryService.getCheckIns(uid);
       setCheckIns(data);
+
+      // Tính tổng km và số địa điểm rồi sync lên profile
+      const sorted = [...data].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      let totalKm = 0;
+      for (let i = 1; i < sorted.length; i++) {
+        totalKm += getDistanceInKm(
+          sorted[i-1].location.lat, sorted[i-1].location.lng,
+          sorted[i].location.lat, sorted[i].location.lng
+        );
+      }
+      // Unique places (rounded coords to avoid counting same spot twice)
+      const uniquePlaces = new Set(data.map(c => `${c.location.lat.toFixed(3)},${c.location.lng.toFixed(3)}`)).size;
+      await userService.updateStats(uid, Math.round(totalKm * 10) / 10, uniquePlaces);
+      // Refresh user profile state
+      const updated = await userService.getProfile(uid);
+      setUserProfile(updated);
     } catch (error) {
       console.error("Failed to load check-ins:", error);
     }
