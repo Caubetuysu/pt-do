@@ -11,6 +11,7 @@ import { userService } from '@/services/userService';
 import { auth } from '@/lib/firebase';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User } from 'firebase/auth';
 import { FriendsPanel } from '@/components/diary/FriendsPanel';
+import { questService } from '@/services/questService';
 import { LocateFixed, Navigation, MapPin, Award, Plane, X, LogIn, Users, Calendar } from 'lucide-react';
 
 interface Hotspot {
@@ -259,6 +260,18 @@ export default function DiaryPage() {
         activityText: text
       });
       await loadCheckIns(currentUser.uid);
+      
+      // Update quest progress
+      const hour = new Date().getHours();
+      try {
+        const newBadges = await questService.updateQuestProgress(currentUser.uid, text, 0, hour);
+        if (newBadges.length > 0) {
+          alert(`🎉 Chúc mừng! Bạn vừa đạt được huy hiệu: ${newBadges.join(', ')}`);
+        }
+      } catch (questErr) {
+        console.error('Quest update failed:', questErr);
+      }
+
       setSelectedLocation(null);
       setDraftLocation(null);
     } catch (e) {
@@ -477,7 +490,7 @@ export default function DiaryPage() {
       )}
       
       {showStats && (
-        <StatisticsModal checkIns={filteredCheckIns} onClose={() => setShowStats(false)} />
+        <StatisticsModal checkIns={filteredCheckIns} currentUser={currentUser} onClose={() => setShowStats(false)} />
       )}
       
     </div>
