@@ -17,3 +17,4 @@ otion-client\ và thêm route dynamic \/notion/[pageId]\ d? render n?i dung Notion
 - **Nhúng Notion Page**: Tách ch?c nang trang ch? thành Server Component d? có th? nhúng tr?c ti?p trang Notion (ID: \2bcdc2d8febf8034b58be40febbc3c89\) ngay bên du?i danh sách công vi?c h?ng ngày.
 - **Fix Checkbox Nhi?m V?**: Ðã thêm ch?c nang cho phép b?m vào t?ng dòng công vi?c d? chuy?n tr?ng thái TODO/DONE.
 - **Fix Caching Notion Page**: Ðã c?u hình Next.js t? d?ng c?p nh?t l?i trang Notion m?i 60 giây thay vì cache vinh vi?n lúc Build, giúp t?i thành công trang Notion.
+- **Nh?t Ký Hành Trình**: Tích h?p b?n d? Leaflet, cho phép l?y d?nh v? GPS và luu check-in (t?a d? + ghi chú) vào Firebase. Hi?n th? L?ch s? theo Timeline.
