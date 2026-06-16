@@ -262,10 +262,10 @@ export default function DiaryPage() {
     // This will trigger the UserLocationMarker in BaseMap to flyTo this location
   };
 
-  const handleDeleteCheckIns = async (ids: Set<string>) => {
+  const handleDeleteCheckIns = async (ids: string[]) => {
     if (!currentUser) return;
     try {
-      for (const id of Array.from(ids)) {
+      for (const id of ids) {
         await diaryService.deleteCheckIn(id);
       }
       await loadCheckIns(currentUser.uid);
