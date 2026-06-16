@@ -115,17 +115,24 @@ function DraftMarker({
   onCancel?: () => void
 }) {
   const map = useMap();
+  const markerRef = React.useRef<L.Marker>(null);
   
   useEffect(() => {
     if (location) {
       map.flyTo([location.lat, location.lng], map.getZoom(), { animate: true });
+      if (markerRef.current) {
+        // Need a tiny timeout to let the map finish rendering the marker before opening popup
+        setTimeout(() => {
+          markerRef.current?.openPopup();
+        }, 100);
+      }
     }
   }, [location, map]);
 
   if (!location) return null;
 
   return (
-    <Marker position={[location.lat, location.lng]}>
+    <Marker position={[location.lat, location.lng]} ref={markerRef}>
       <Popup 
         eventHandlers={{ remove: () => onCancel?.() }}
         autoPan={false}
