@@ -13,7 +13,9 @@ import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User } from 'f
 import { FriendsPanel } from '@/components/diary/FriendsPanel';
 import { questService } from '@/services/questService';
 import { fetchWeather, getWeatherEmoji, getWeatherDesc } from '@/services/weatherService';
-import { LocateFixed, Navigation, MapPin, Award, Plane, X, LogIn, Users, Calendar } from 'lucide-react';
+import { WrapUpModal } from '@/components/diary/WrapUpModal';
+import { UserProfile } from '@/services/userService';
+import { LocateFixed, Navigation, MapPin, Award, Plane, X, LogIn, Users, Calendar, Sparkles } from 'lucide-react';
 
 interface Hotspot {
   lat: number;
@@ -44,6 +46,8 @@ export default function DiaryPage() {
   const [draftLocation, setDraftLocation] = useState<{ lat: number, lng: number } | null>(null);
   const [draftAddress, setDraftAddress] = useState<string>("Đang tải địa chỉ...");
   const [showStats, setShowStats] = useState(false);
+  const [showWrapUp, setShowWrapUp] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showFriends, setShowFriends] = useState(false);
 
@@ -63,11 +67,13 @@ export default function DiaryPage() {
       if (user) {
         loadCheckIns(user.uid);
         // Create or update user profile in Firestore
-        await userService.createOrUpdateProfile(user.uid, {
+        const profile = await userService.createOrUpdateProfile(user.uid, {
           displayName: user.displayName || 'Người dùng',
           photoURL: user.photoURL || '',
           email: user.email || ''
         });
+        const p = await userService.getProfile(user.uid);
+        setUserProfile(p);
       } else {
         setCheckIns([]);
         setRoutedDays([]);
@@ -440,6 +446,15 @@ export default function DiaryPage() {
 
         {/* Floating Actions */}
         <div className="absolute bottom-6 right-6 z-[1000] flex flex-col gap-3 items-end">
+          {/* Wrap-up Button */}
+          <button 
+            onClick={() => setShowWrapUp(true)}
+            className="bg-gradient-to-br from-violet-500 to-purple-600 text-white p-3 rounded-full shadow-lg hover:from-violet-400 hover:to-purple-500 transition-all active:scale-95 flex items-center justify-center"
+            title="Wrap-up Năm"
+          >
+            <Sparkles className="w-6 h-6" />
+          </button>
+
           {/* Friends Button */}
           <button 
             onClick={() => { setShowFriends(true); setIsSidebarOpen(false); }}
@@ -507,6 +522,15 @@ export default function DiaryPage() {
       
       {showStats && (
         <StatisticsModal checkIns={filteredCheckIns} currentUser={currentUser} onClose={() => setShowStats(false)} />
+      )}
+
+      {showWrapUp && (
+        <WrapUpModal 
+          checkIns={checkIns} 
+          userProfile={userProfile} 
+          year={new Date().getFullYear()} 
+          onClose={() => setShowWrapUp(false)} 
+        />
       )}
       
     </div>
