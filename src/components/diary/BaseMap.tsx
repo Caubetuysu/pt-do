@@ -78,8 +78,19 @@ function MapEventHandler({ onClick }: { onClick: (lat: number, lng: number) => v
   return null;
 }
 
+// Custom blue dot for user location
+const userLocationIcon = L.divIcon({
+  html: `<div class="relative flex items-center justify-center w-4 h-4">
+          <div class="absolute inline-flex w-full h-full rounded-full bg-blue-400 opacity-75 animate-ping"></div>
+          <div class="relative inline-flex w-3 h-3 rounded-full bg-blue-500 border border-white shadow-sm"></div>
+         </div>`,
+  className: 'custom-user-location-icon',
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
+});
+
 // User Location Centering Component
-function UserLocationMarker({ location, onClick }: { location: { lat: number, lng: number } | null, onClick?: (lat: number, lng: number) => void }) {
+function UserLocationMarker({ location }: { location: { lat: number, lng: number } | null }) {
   const map = useMap();
   useEffect(() => {
     if (location) {
@@ -88,9 +99,7 @@ function UserLocationMarker({ location, onClick }: { location: { lat: number, ln
   }, [location, map]);
 
   return location ? (
-    <Marker position={[location.lat, location.lng]}>
-      <Popup>Bạn đang ở đây!</Popup>
-    </Marker>
+    <Marker position={[location.lat, location.lng]} icon={userLocationIcon} />
   ) : null;
 }
 
@@ -162,7 +171,7 @@ export default function BaseMap({
       
       <SearchField />
       <MapEventHandler onClick={onMapClick} />
-      <UserLocationMarker location={userLocation} onClick={onMapClick} />
+      <UserLocationMarker location={userLocation} />
       <DraftMarker 
         location={draftLocation || null} 
         address={draftAddress} 
