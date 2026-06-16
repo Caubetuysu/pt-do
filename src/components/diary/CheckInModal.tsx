@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { MapPin, X } from 'lucide-react';
+import { MapPin, X, Home, GraduationCap, Building2 } from 'lucide-react';
+
+const DEFAULT_LOCATIONS = [
+  { label: 'Nhà ở', text: 'Nhà', icon: <Home className="w-4 h-4" /> },
+  { label: 'Trường học', text: 'Trường học', icon: <GraduationCap className="w-4 h-4" /> },
+  { label: 'Phòng trọ', text: 'Phòng trọ', icon: <Building2 className="w-4 h-4" /> },
+];
 
 interface CheckInModalProps {
   location: { lat: number; lng: number };
@@ -59,6 +65,22 @@ export function CheckInModal({ location, address, onClose, onSubmit }: CheckInMo
             <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
               Vị trí: <span className="font-medium text-foreground bg-secondary px-2 py-1 rounded">{address || `${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`}</span>
             </p>
+
+            {/* Quick Fill Tags */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {DEFAULT_LOCATIONS.map((loc, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setText(loc.text)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary/50 hover:bg-secondary text-sm font-medium rounded-full transition-colors border border-border"
+                >
+                  {loc.icon}
+                  {loc.label}
+                </button>
+              ))}
+            </div>
+
             <label className="block text-sm font-medium mb-2">Bạn đang làm gì ở đây?</label>
             <textarea
               autoFocus

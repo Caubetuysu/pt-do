@@ -6,7 +6,7 @@ import { Timeline } from '@/components/diary/Timeline';
 import { CheckInModal } from '@/components/diary/CheckInModal';
 import { StatisticsModal } from '@/components/diary/StatisticsModal';
 import { diaryService, CheckIn, reverseGeocode } from '@/services/diaryService';
-import { LocateFixed, Navigation, MapPin, Award } from 'lucide-react';
+import { LocateFixed, Navigation, MapPin, Award, Plane, X } from 'lucide-react';
 
 const MOCK_USER_ID = "traveler-user-123";
 
@@ -39,6 +39,7 @@ export default function DiaryPage() {
   const [draftLocation, setDraftLocation] = useState<{ lat: number, lng: number } | null>(null);
   const [draftAddress, setDraftAddress] = useState<string>("Đang tải địa chỉ...");
   const [showStats, setShowStats] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     loadCheckIns();
@@ -188,23 +189,36 @@ export default function DiaryPage() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-screen w-full bg-background overflow-hidden">
+    <div className="relative h-screen w-full bg-background overflow-hidden">
       
-      {/* Sidebar - Timeline (Left on Desktop, Bottom on Mobile) */}
-      <div className="w-full lg:w-96 h-1/3 lg:h-full border-b lg:border-b-0 lg:border-r border-border bg-card flex-shrink-0 z-10 shadow-lg">
-        <div className="p-4 border-b border-border bg-background flex items-center justify-between">
+      {/* Sidebar - Timeline (Sliding drawer) */}
+      <div className={`absolute top-0 left-0 h-full w-full sm:w-96 bg-card z-[2000] shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="p-4 border-b border-border bg-background flex items-center justify-between shadow-sm z-10">
           <h1 className="text-xl font-bold flex items-center gap-2">
             <Navigation className="w-5 h-5 text-emerald-500" />
             Nhật Ký Hành Trình
           </h1>
+          <button onClick={() => setIsSidebarOpen(false)} className="p-2 hover:bg-secondary rounded-full transition-colors">
+            <X className="w-5 h-5 text-muted-foreground" />
+          </button>
         </div>
-        <div className="h-[calc(100%-60px)]">
+        <div className="flex-1 overflow-hidden">
           <Timeline checkIns={checkIns} onItemClick={handleTimelineClick} onDeleteCheckIns={handleDeleteCheckIns} />
         </div>
       </div>
 
       {/* Main Content - Map */}
-      <div className="flex-1 relative h-2/3 lg:h-full">
+      <div className="w-full h-full relative">
+        {/* Toggle Sidebar Button (Airplane) */}
+        <button 
+          onClick={() => setIsSidebarOpen(true)}
+          className={`absolute top-6 left-6 z-[1000] bg-emerald-500 text-white p-3 rounded-xl shadow-lg hover:bg-emerald-600 transition-all active:scale-95 flex items-center gap-2 ${isSidebarOpen ? 'opacity-0 -translate-x-4 pointer-events-none' : 'opacity-100 translate-x-0'}`}
+          title="Mở Nhật Ký Hành Trình"
+        >
+          <Plane className="w-6 h-6" />
+          <span className="font-semibold hidden sm:inline">Nhật Ký</span>
+        </button>
+
         {/* Distance Overlay */}
         <div className="absolute top-6 right-6 z-[1000] bg-background/90 backdrop-blur-md px-4 py-3 rounded-xl shadow-lg border border-border flex items-center gap-3">
           <div className="bg-emerald-100 dark:bg-emerald-500/20 p-2 rounded-full">
