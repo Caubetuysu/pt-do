@@ -4,8 +4,9 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { MapWrapper } from '@/components/diary/MapWrapper';
 import { Timeline } from '@/components/diary/Timeline';
 import { CheckInModal } from '@/components/diary/CheckInModal';
+import { StatisticsModal } from '@/components/diary/StatisticsModal';
 import { diaryService, CheckIn, reverseGeocode } from '@/services/diaryService';
-import { LocateFixed, Navigation, MapPin } from 'lucide-react';
+import { LocateFixed, Navigation, MapPin, Award } from 'lucide-react';
 
 const MOCK_USER_ID = "traveler-user-123";
 
@@ -37,6 +38,7 @@ export default function DiaryPage() {
   const [isLocating, setIsLocating] = useState(false);
   const [draftLocation, setDraftLocation] = useState<{ lat: number, lng: number } | null>(null);
   const [draftAddress, setDraftAddress] = useState<string>("Đang tải địa chỉ...");
+  const [showStats, setShowStats] = useState(false);
 
   useEffect(() => {
     loadCheckIns();
@@ -175,6 +177,16 @@ export default function DiaryPage() {
     // This will trigger the UserLocationMarker in BaseMap to flyTo this location
   };
 
+  const handleDeleteCheckIns = async (ids: string[]) => {
+    try {
+      await diaryService.deleteCheckIns(ids);
+      await loadCheckIns();
+    } catch (error) {
+      console.error("Failed to delete check-ins:", error);
+      alert("Đã xảy ra lỗi khi xóa dữ liệu.");
+    }
+  };
+
   return (
     <div className="flex flex-col lg:flex-row h-screen w-full bg-background overflow-hidden">
       
@@ -187,7 +199,7 @@ export default function DiaryPage() {
           </h1>
         </div>
         <div className="h-[calc(100%-60px)]">
-          <Timeline checkIns={checkIns} onItemClick={handleTimelineClick} />
+          <Timeline checkIns={checkIns} onItemClick={handleTimelineClick} onDeleteCheckIns={handleDeleteCheckIns} />
         </div>
       </div>
 
@@ -208,6 +220,15 @@ export default function DiaryPage() {
 
         {/* Floating Actions */}
         <div className="absolute bottom-6 right-6 z-[1000] flex flex-col gap-3 items-end">
+          {/* Stats Button */}
+          <button 
+            onClick={() => setShowStats(true)}
+            className="bg-background text-foreground p-3 rounded-full shadow-lg border border-border hover:bg-secondary transition-colors active:scale-95 flex items-center justify-center"
+            title="Bảng Phong Thần (Thống Kê)"
+          >
+            <Award className="w-6 h-6 text-yellow-500" />
+          </button>
+
           {/* GPS Locate Only Button */}
           <button 
             onClick={handleFindMyLocation}
@@ -253,6 +274,10 @@ export default function DiaryPage() {
           onClose={() => setSelectedLocation(null)}
           onSubmit={handleSubmitCheckIn}
         />
+      )}
+      
+      {showStats && (
+        <StatisticsModal checkIns={checkIns} onClose={() => setShowStats(false)} />
       )}
       
     </div>

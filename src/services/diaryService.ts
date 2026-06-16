@@ -70,5 +70,10 @@ export const diaryService = {
   async deleteCheckIn(id: string): Promise<void> {
     const docRef = doc(db, COLLECTION_NAME, id);
     await deleteDoc(docRef);
+  },
+
+  async deleteCheckIns(ids: string[]): Promise<void> {
+    const promises = ids.map(id => this.deleteCheckIn(id));
+    await Promise.all(promises);
   }
 };
