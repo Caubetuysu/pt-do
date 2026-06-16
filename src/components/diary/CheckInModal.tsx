@@ -37,8 +37,8 @@ export function CheckInModal({ location, address, onClose, onSubmit }: CheckInMo
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-card w-full max-w-lg rounded-xl shadow-2xl border border-border overflow-hidden">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
+      <div className="bg-card w-full max-w-lg rounded-xl shadow-2xl border border-border overflow-hidden pointer-events-auto">
         {/* Header */}
         <div className="px-6 py-4 border-b border-border flex items-center justify-between">
           <h3 className="text-xl font-bold flex items-center gap-2">
