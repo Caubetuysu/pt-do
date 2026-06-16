@@ -79,7 +79,7 @@ function MapEventHandler({ onClick }: { onClick: (lat: number, lng: number) => v
 }
 
 // User Location Centering Component
-function UserLocationMarker({ location }: { location: { lat: number, lng: number } | null }) {
+function UserLocationMarker({ location, onClick }: { location: { lat: number, lng: number } | null, onClick?: (lat: number, lng: number) => void }) {
   const map = useMap();
   useEffect(() => {
     if (location) {
@@ -89,7 +89,18 @@ function UserLocationMarker({ location }: { location: { lat: number, lng: number
 
   return location ? (
     <Marker position={[location.lat, location.lng]}>
-      <Popup>Bạn đang ở đây!</Popup>
+      <Popup>
+        <div className="p-1 text-center min-w-[120px]">
+          <p className="font-bold mb-3">Bạn đang ở đây!</p>
+          <button 
+            onClick={() => onClick?.(location.lat, location.lng)}
+            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-1.5 px-3 rounded-md transition-colors text-xs flex items-center justify-center gap-1 shadow-sm"
+          >
+            <MapPin className="w-3 h-3" />
+            Ghim vị trí này
+          </button>
+        </div>
+      </Popup>
     </Marker>
   ) : null;
 }
@@ -155,7 +166,7 @@ export default function BaseMap({
       
       <SearchField />
       <MapEventHandler onClick={onMapClick} />
-      <UserLocationMarker location={userLocation} />
+      <UserLocationMarker location={userLocation} onClick={onMapClick} />
       <DraftMarker 
         location={draftLocation || null} 
         address={draftAddress} 
