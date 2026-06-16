@@ -32,6 +32,28 @@ export default function DiaryPage() {
     setSelectedLocation({ lat, lng });
   };
 
+  const handleFindMyLocation = () => {
+    setIsLocating(true);
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const loc = { lat: position.coords.latitude, lng: position.coords.longitude };
+          setUserLocation(loc);
+          setIsLocating(false);
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          alert("Không thể lấy vị trí. Vui lòng bật định vị GPS.");
+          setIsLocating(false);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    } else {
+      alert("Trình duyệt của bạn không hỗ trợ định vị GPS.");
+      setIsLocating(false);
+    }
+  };
+
   const handleLocateMe = () => {
     setIsLocating(true);
     if ("geolocation" in navigator) {
@@ -87,17 +109,30 @@ export default function DiaryPage() {
 
       {/* Main Content - Map */}
       <div className="flex-1 relative h-2/3 lg:h-full">
-        {/* Floating Action Button for GPS */}
-        <button 
-          onClick={handleLocateMe}
-          disabled={isLocating}
-          className="absolute bottom-6 right-6 z-[1000] bg-emerald-500 text-white p-4 rounded-full shadow-xl hover:bg-emerald-600 transition-transform active:scale-95 disabled:opacity-70 flex items-center gap-2"
-        >
-          <LocateFixed className={`w-6 h-6 ${isLocating ? 'animate-spin' : ''}`} />
-          <span className="font-semibold hidden sm:inline">
-            {isLocating ? 'Đang định vị...' : 'Check-in tại đây'}
-          </span>
-        </button>
+        {/* Floating Actions */}
+        <div className="absolute bottom-6 right-6 z-[1000] flex flex-col gap-3 items-end">
+          {/* GPS Locate Only Button */}
+          <button 
+            onClick={handleFindMyLocation}
+            disabled={isLocating}
+            className="bg-background text-foreground p-3 rounded-full shadow-lg border border-border hover:bg-secondary transition-colors active:scale-95 disabled:opacity-70 flex items-center justify-center"
+            title="Định vị vị trí của tôi"
+          >
+            <LocateFixed className={`w-6 h-6 text-blue-500 ${isLocating ? 'animate-pulse' : ''}`} />
+          </button>
+
+          {/* Floating Action Button for Check-in at GPS */}
+          <button 
+            onClick={handleLocateMe}
+            disabled={isLocating}
+            className="bg-emerald-500 text-white p-4 rounded-full shadow-xl hover:bg-emerald-600 transition-transform active:scale-95 disabled:opacity-70 flex items-center gap-2"
+          >
+            <MapPin className={`w-6 h-6 ${isLocating ? 'animate-bounce' : ''}`} />
+            <span className="font-semibold hidden sm:inline">
+              {isLocating ? 'Đang lấy vị trí...' : 'Check-in tại đây'}
+            </span>
+          </button>
+        </div>
 
         {/* The Map */}
         <MapWrapper 
