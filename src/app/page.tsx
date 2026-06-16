@@ -80,27 +80,11 @@ export default function Dashboard() {
         <div className="flex gap-4">
           <button className="flex items-center gap-2 text-sm font-medium text-foreground px-2 py-1 bg-secondary/50 rounded">
             <ListTodo className="w-4 h-4" />
-            To Do
-          </button>
-          <button className="flex items-center gap-2 text-sm text-muted-foreground hover:bg-secondary px-2 py-1 rounded transition-colors">
-            <CheckSquare className="w-4 h-4" />
-            Done
+            Tasks
           </button>
         </div>
         <div className="flex items-center gap-1 text-muted-foreground">
-          <button className="p-1.5 hover:bg-secondary rounded transition-colors"><ListFilter className="w-4 h-4" /></button>
-          <button className="p-1.5 hover:bg-secondary rounded transition-colors"><ArrowUpDown className="w-4 h-4" /></button>
-          <button className="p-1.5 hover:bg-secondary rounded transition-colors"><Zap className="w-4 h-4" /></button>
-          <button className="p-1.5 hover:bg-secondary rounded transition-colors"><Search className="w-4 h-4" /></button>
-          <button className="p-1.5 hover:bg-secondary rounded transition-colors"><Maximize2 className="w-4 h-4" /></button>
-          <button className="p-1.5 hover:bg-secondary rounded transition-colors"><MoreHorizontal className="w-4 h-4" /></button>
-          
-          <div className="flex items-center bg-[#2eaadc] text-white rounded ml-2 cursor-pointer hover:bg-[#2791bc] transition-colors">
-            <div className="px-3 py-1.5 text-sm font-medium">New</div>
-            <div className="px-2 py-1.5 border-l border-white/20 hover:bg-white/10 transition-colors">
-              <ChevronDown className="w-4 h-4" />
-            </div>
-          </div>
+          {/* Unclickable fake buttons removed per user request */}
         </div>
       </div>
 

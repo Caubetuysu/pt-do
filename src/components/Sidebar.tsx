@@ -29,60 +29,17 @@ export function Sidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden">
-        {/* Main Navigation */}
-        <div className="px-2 mt-2 space-y-[2px]">
-          <NavItem icon={<Search className="w-4 h-4" />} label="Search" />
-          <NavItem icon={<Home className="w-4 h-4" />} label="Home" />
-          <NavItem icon={<Calendar className="w-4 h-4" />} label="Meetings" />
-          <NavItem icon={<Sparkles className="w-4 h-4" />} label="Notion AI" />
-          <NavItem icon={<Inbox className="w-4 h-4" />} label="Inbox" />
-          <NavItem icon={<Book className="w-4 h-4" />} label="Library" />
-          <NavItem icon={<Users className="w-4 h-4" />} label="Workers" />
-        </div>
-
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden mt-6">
         {/* Private Section */}
-        <div className="mt-6">
+        <div>
           <div className="px-3 flex items-center justify-between group/section cursor-pointer hover:bg-secondary py-1 transition-colors">
             <span className="text-xs font-semibold">Private</span>
-            <div className="flex gap-1 opacity-0 group-hover/section:opacity-100">
-              <Plus className="w-4 h-4" />
-            </div>
           </div>
           <div className="px-2 mt-1 space-y-[2px]">
             <Link href="/" className="flex items-center gap-2 px-3 py-1 rounded-md bg-secondary text-foreground cursor-pointer">
               <ListTodo className="w-4 h-4 text-emerald-500" />
               <span className="truncate">Nhiệm vụ hằng ngày</span>
             </Link>
-            <NavItem icon={<span className="w-4 h-4 flex items-center justify-center text-lg">👋</span>} label="Getting Started" />
-            <NavItem icon={<span className="w-4 h-4 flex items-center justify-center text-lg">🛠️</span>} label="Databases Demo" />
-          </div>
-        </div>
-
-        {/* Teamspaces Section */}
-        <div className="mt-6">
-          <div className="px-3 flex items-center justify-between group/section cursor-pointer hover:bg-secondary py-1 transition-colors">
-            <span className="text-xs font-semibold text-muted-foreground">Teamspaces</span>
-            <div className="flex gap-1 opacity-0 group-hover/section:opacity-100">
-              <Plus className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="px-2 mt-1 space-y-[2px]">
-            <NavItem icon={<span className="w-4 h-4 flex items-center justify-center text-lg">🏠</span>} label="Phước Thành's Space HQ" />
-            <NavItem icon={<Plus className="w-4 h-4" />} label="Add new" />
-          </div>
-        </div>
-
-        {/* Notion Apps Section */}
-        <div className="mt-6 mb-4">
-          <div className="px-3 flex items-center justify-between group/section cursor-pointer hover:bg-secondary py-1 transition-colors">
-            <span className="text-xs font-semibold text-muted-foreground">Notion apps</span>
-            <div className="flex gap-1 opacity-0 group-hover/section:opacity-100">
-              <Plus className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="px-2 mt-1 space-y-[2px]">
-            <NavItem icon={<Mail className="w-4 h-4" />} label="Notion Mail" />
           </div>
         </div>
       </nav>
