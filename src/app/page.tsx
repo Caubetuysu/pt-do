@@ -5,7 +5,7 @@ import { MapWrapper } from '@/components/diary/MapWrapper';
 import { Timeline } from '@/components/diary/Timeline';
 import { CheckInModal } from '@/components/diary/CheckInModal';
 import { diaryService, CheckIn } from '@/services/diaryService';
-import { LocateFixed, Navigation } from 'lucide-react';
+import { LocateFixed, Navigation, MapPin } from 'lucide-react';
 
 const MOCK_USER_ID = "traveler-user-123";
 
