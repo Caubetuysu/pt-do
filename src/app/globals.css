@@ -160,3 +160,19 @@ body {
     @apply font-sans;
   }
 }
+
+/* Fix Leaflet text colors in dark mode (white text on white background issue) */
+.leaflet-container,
+.leaflet-control-geosearch form,
+.leaflet-control-geosearch .results,
+.leaflet-popup-content-wrapper {
+  color: #000 !important;
+}
+
+.leaflet-control-geosearch .results > * {
+  color: #000 !important;
+}
+
+.leaflet-control-geosearch form input {
+  color: #000 !important;
+}
