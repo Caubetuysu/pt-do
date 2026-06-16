@@ -89,18 +89,7 @@ function UserLocationMarker({ location, onClick }: { location: { lat: number, ln
 
   return location ? (
     <Marker position={[location.lat, location.lng]}>
-      <Popup>
-        <div className="p-1 text-center min-w-[120px]">
-          <p className="font-bold mb-3">Bạn đang ở đây!</p>
-          <button 
-            onClick={() => onClick?.(location.lat, location.lng)}
-            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-1.5 px-3 rounded-md transition-colors text-xs flex items-center justify-center gap-1 shadow-sm"
-          >
-            <MapPin className="w-3 h-3" />
-            Ghim vị trí này
-          </button>
-        </div>
-      </Popup>
+      <Popup>Bạn đang ở đây!</Popup>
     </Marker>
   ) : null;
 }
