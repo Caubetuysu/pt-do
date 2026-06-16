@@ -33,11 +33,10 @@ export const diaryService = {
   async getCheckIns(userId: string): Promise<CheckIn[]> {
     const q = query(
       collection(db, COLLECTION_NAME),
-      where('userId', '==', userId),
-      orderBy('timestamp', 'desc')
+      where('userId', '==', userId)
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => {
+    const results = snapshot.docs.map(doc => {
       const data = doc.data();
       return {
         id: doc.id,
@@ -45,6 +44,9 @@ export const diaryService = {
         timestamp: data.timestamp?.toDate() || new Date(),
       } as CheckIn;
     });
+
+    // Sort locally to avoid needing a Firestore composite index
+    return results.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   },
 
   async updateCheckIn(id: string, data: Partial<CheckIn>): Promise<void> {
