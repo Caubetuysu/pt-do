@@ -193,13 +193,17 @@ export default function DiaryPage() {
       
       {/* Sidebar - Timeline (Sliding drawer) */}
       <div className={`absolute top-0 left-0 h-full w-full sm:w-96 bg-card z-[2000] shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="p-4 border-b border-border bg-background flex items-center justify-between shadow-sm z-10">
-          <h1 className="text-xl font-bold flex items-center gap-2">
-            <Navigation className="w-5 h-5 text-emerald-500" />
-            Nhật Ký Hành Trình
+        <div className="p-4 border-b border-border bg-background flex items-center justify-between shadow-sm z-10 sticky top-0">
+          <h1 className="text-lg sm:text-xl font-bold flex items-center gap-2 truncate pr-2">
+            <Navigation className="w-5 h-5 text-emerald-500 shrink-0" />
+            <span className="truncate">Nhật Ký Hành Trình</span>
           </h1>
-          <button onClick={() => setIsSidebarOpen(false)} className="p-2 hover:bg-secondary rounded-full transition-colors">
-            <X className="w-5 h-5 text-muted-foreground" />
+          <button 
+            onClick={() => setIsSidebarOpen(false)} 
+            className="p-3 shrink-0 bg-secondary/50 hover:bg-secondary rounded-full transition-colors flex items-center justify-center shadow-sm"
+            aria-label="Đóng"
+          >
+            <X className="w-6 h-6 text-foreground font-bold" />
           </button>
         </div>
         <div className="flex-1 overflow-hidden">
