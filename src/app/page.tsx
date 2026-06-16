@@ -6,6 +6,7 @@ import { Timeline } from '@/components/diary/Timeline';
 import { CheckInModal } from '@/components/diary/CheckInModal';
 import { StatisticsModal } from '@/components/diary/StatisticsModal';
 import { diaryService, CheckIn, reverseGeocode } from '@/services/diaryService';
+import { fetchOSRMRoute } from '@/services/routingService';
 import { LocateFixed, Navigation, MapPin, Award, Plane, X } from 'lucide-react';
 
 const MOCK_USER_ID = "traveler-user-123";
@@ -41,19 +42,69 @@ export default function DiaryPage() {
   const [showStats, setShowStats] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  const [routedDistance, setRoutedDistance] = useState<number>(0);
+  const [routedDays, setRoutedDays] = useState<{dateStr: string, points: {lat: number, lng: number}[]}[]>([]);
+  const [isRouting, setIsRouting] = useState(false);
+
   useEffect(() => {
     loadCheckIns();
   }, []);
 
-  const { hotspots, totalDistance, routeDays } = useMemo(() => {
+  useEffect(() => {
+    async function calculateRoutes() {
+      if (checkIns.length === 0) {
+        setRoutedDistance(0);
+        setRoutedDays([]);
+        return;
+      }
+      setIsRouting(true);
+      
+      const sorted = [...checkIns].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      const daysMap = new Map<string, {lat: number, lng: number}[]>();
+      sorted.forEach((checkIn) => {
+        const dateStr = checkIn.timestamp.toLocaleDateString('vi-VN');
+        if (!daysMap.has(dateStr)) daysMap.set(dateStr, []);
+        daysMap.get(dateStr)!.push(checkIn.location);
+      });
+
+      let totalDist = 0;
+      const newRoutedDays: {dateStr: string, points: {lat: number, lng: number}[]}[] = [];
+
+      for (const [dateStr, points] of daysMap.entries()) {
+        if (points.length < 2) {
+          newRoutedDays.push({ dateStr, points: points });
+        } else {
+          const routeResult = await fetchOSRMRoute(points);
+          if (routeResult) {
+            totalDist += routeResult.distance / 1000; // convert meters to km
+            newRoutedDays.push({ dateStr, points: routeResult.geometry });
+          } else {
+            // fallback to straight lines
+            let fallbackDist = 0;
+            for (let i = 1; i < points.length; i++) {
+              fallbackDist += getDistanceInKm(points[i-1].lat, points[i-1].lng, points[i].lat, points[i].lng);
+            }
+            totalDist += fallbackDist;
+            newRoutedDays.push({ dateStr, points });
+          }
+        }
+      }
+
+      setRoutedDistance(totalDist);
+      setRoutedDays(newRoutedDays);
+      setIsRouting(false);
+    }
+    
+    calculateRoutes();
+  }, [checkIns]);
+
+  const { hotspots } = useMemo(() => {
     const spots: Hotspot[] = [];
     
-    // Sort chronologically for polyline
+    // Sort chronologically
     const sorted = [...checkIns].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-    let distance = 0;
-    const daysMap = new Map<string, {lat: number, lng: number}[]>();
 
-    sorted.forEach((checkIn, i) => {
+    sorted.forEach((checkIn) => {
       // Hotspot calculation
       const existing = spots.find(
         h => Math.abs(h.lat - checkIn.location.lat) < 0.001 && 
@@ -66,24 +117,10 @@ export default function DiaryPage() {
       } else {
         spots.push({ lat: checkIn.location.lat, lng: checkIn.location.lng, count: 1 });
       }
-
-      // Route and Distance Calculation
-      if (i > 0) {
-        const prev = sorted[i-1];
-        distance += getDistanceInKm(prev.location.lat, prev.location.lng, checkIn.location.lat, checkIn.location.lng);
-      }
-      
-      const dateStr = checkIn.timestamp.toLocaleDateString('vi-VN');
-      if (!daysMap.has(dateStr)) {
-        daysMap.set(dateStr, []);
-      }
-      daysMap.get(dateStr)!.push(checkIn.location);
     });
 
     return {
-      hotspots: spots.filter(h => h.count >= 2),
-      totalDistance: distance,
-      routeDays: Array.from(daysMap.entries()).map(([dateStr, points]) => ({ dateStr, points }))
+      hotspots: spots.filter(h => h.count >= 2)
     };
   }, [checkIns]);
 
@@ -231,7 +268,13 @@ export default function DiaryPage() {
           <div>
             <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Tổng Quãng Đường</p>
             <p className="text-xl font-bold text-foreground">
-              {totalDistance > 10 ? Math.round(totalDistance) : totalDistance.toFixed(1)} <span className="text-sm font-normal text-muted-foreground">km</span>
+              {isRouting ? (
+                <span className="text-sm font-normal animate-pulse text-emerald-500">Đang tính...</span>
+              ) : (
+                <>
+                  {routedDistance > 10 ? Math.round(routedDistance) : routedDistance.toFixed(1)} <span className="text-sm font-normal text-muted-foreground">km</span>
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -280,7 +323,7 @@ export default function DiaryPage() {
           onConfirmDraft={handleConfirmDraft}
           onCancelDraft={() => setDraftLocation(null)}
           hotspots={hotspots}
-          routeDays={routeDays}
+          routeDays={routedDays}
         />
       </div>
 
