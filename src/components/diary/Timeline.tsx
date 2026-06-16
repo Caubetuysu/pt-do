@@ -46,8 +46,8 @@ export function Timeline({ checkIns, onItemClick }: TimelineProps) {
               </div>
               <p className="text-foreground whitespace-pre-wrap">{checkIn.activityText}</p>
               <div className="mt-3 text-xs text-muted-foreground flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
-                {checkIn.location.lat.toFixed(4)}, {checkIn.location.lng.toFixed(4)}
+                <MapPin className="w-3 h-3 flex-shrink-0" />
+                <span className="truncate">{checkIn.address || `${checkIn.location.lat.toFixed(4)}, ${checkIn.location.lng.toFixed(4)}`}</span>
               </div>
             </div>
           </div>

@@ -18,8 +18,21 @@ export interface CheckIn {
     lat: number;
     lng: number;
   };
+  address?: string;
   timestamp: Date;
   activityText: string;
+}
+
+export async function reverseGeocode(lat: number, lng: number): Promise<string> {
+  try {
+    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=vi`);
+    if (!response.ok) return 'Địa chỉ không xác định';
+    const data = await response.json();
+    return data.display_name || 'Địa chỉ không xác định';
+  } catch (error) {
+    console.error("Geocoding error", error);
+    return 'Không thể lấy địa chỉ';
+  }
 }
 
 const COLLECTION_NAME = 'travel_diary';

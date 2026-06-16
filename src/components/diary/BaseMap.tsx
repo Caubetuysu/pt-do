@@ -53,10 +53,19 @@ function SearchField() {
   return null;
 }
 
+import { CircleMarker } from 'react-leaflet';
+
+// ... other imports ...
+
 interface BaseMapProps {
   checkIns: CheckIn[];
   onMapClick: (lat: number, lng: number) => void;
   userLocation: { lat: number, lng: number } | null;
+  draftLocation?: { lat: number, lng: number } | null;
+  draftAddress?: string;
+  onConfirmDraft?: () => void;
+  onCancelDraft?: () => void;
+  hotspots?: { lat: number, lng: number, count: number }[];
 }
 
 // Map Event Handler Component
@@ -85,7 +94,52 @@ function UserLocationMarker({ location }: { location: { lat: number, lng: number
   ) : null;
 }
 
-export default function BaseMap({ checkIns, onMapClick, userLocation }: BaseMapProps) {
+// Draft Location Auto-open Component
+function DraftMarker({ 
+  location, address, onConfirm, onCancel 
+}: { 
+  location: { lat: number, lng: number } | null, 
+  address?: string, 
+  onConfirm?: () => void,
+  onCancel?: () => void
+}) {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (location) {
+      map.flyTo([location.lat, location.lng], map.getZoom(), { animate: true });
+    }
+  }, [location, map]);
+
+  if (!location) return null;
+
+  return (
+    <Marker position={[location.lat, location.lng]}>
+      <Popup 
+        eventHandlers={{ remove: () => onCancel?.() }}
+        autoPan={false}
+      >
+        <div className="p-2 min-w-[200px]">
+          <h4 className="font-bold text-base mb-2 text-foreground">Vị trí đã chọn</h4>
+          <p className="text-sm text-muted-foreground mb-4 line-clamp-3 leading-relaxed">
+            {address}
+          </p>
+          <button 
+            onClick={() => onConfirm?.()}
+            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-2 px-3 rounded-md transition-colors flex items-center justify-center gap-2"
+          >
+            <MapPin className="w-4 h-4" />
+            📝 Thêm Nhật Ký
+          </button>
+        </div>
+      </Popup>
+    </Marker>
+  );
+}
+
+export default function BaseMap({ 
+  checkIns, onMapClick, userLocation, draftLocation, draftAddress, onConfirmDraft, onCancelDraft, hotspots 
+}: BaseMapProps) {
   const defaultCenter: [number, number] = [10.762622, 106.660172]; // HCMC Default
 
   return (
@@ -102,6 +156,26 @@ export default function BaseMap({ checkIns, onMapClick, userLocation }: BaseMapP
       <SearchField />
       <MapEventHandler onClick={onMapClick} />
       <UserLocationMarker location={userLocation} />
+      <DraftMarker 
+        location={draftLocation || null} 
+        address={draftAddress} 
+        onConfirm={onConfirmDraft} 
+        onCancel={onCancelDraft}
+      />
+
+      {hotspots && hotspots.map((spot, idx) => (
+        <CircleMarker 
+          key={`hotspot-${idx}`}
+          center={[spot.lat, spot.lng]}
+          pathOptions={{ color: '#f59e0b', fillColor: '#f59e0b', fillOpacity: 0.4 }}
+          radius={30}
+        >
+          <Popup>
+            <div className="font-bold text-amber-500">🔥 Địa điểm hay đi</div>
+            <div className="text-sm">Bạn đã check-in {spot.count} lần ở khu vực này!</div>
+          </Popup>
+        </CircleMarker>
+      ))}
 
       <MarkerClusterGroup>
         {checkIns.map((checkIn) => (
@@ -115,6 +189,7 @@ export default function BaseMap({ checkIns, onMapClick, userLocation }: BaseMapP
                 <p className="font-semibold text-sm mb-1">
                   {checkIn.timestamp.toLocaleDateString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                 </p>
+                {checkIn.address && <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{checkIn.address}</p>}
                 <p className="text-sm">{checkIn.activityText}</p>
               </div>
             </Popup>

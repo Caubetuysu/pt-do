@@ -1,23 +1,50 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { MapWrapper } from '@/components/diary/MapWrapper';
 import { Timeline } from '@/components/diary/Timeline';
 import { CheckInModal } from '@/components/diary/CheckInModal';
-import { diaryService, CheckIn } from '@/services/diaryService';
+import { diaryService, CheckIn, reverseGeocode } from '@/services/diaryService';
 import { LocateFixed, Navigation, MapPin } from 'lucide-react';
 
 const MOCK_USER_ID = "traveler-user-123";
+
+interface Hotspot {
+  lat: number;
+  lng: number;
+  count: number;
+}
 
 export default function DiaryPage() {
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number, lng: number } | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
   const [isLocating, setIsLocating] = useState(false);
+  const [draftLocation, setDraftLocation] = useState<{ lat: number, lng: number } | null>(null);
+  const [draftAddress, setDraftAddress] = useState<string>("Đang tải địa chỉ...");
 
   useEffect(() => {
     loadCheckIns();
   }, []);
+
+  const hotspots = useMemo(() => {
+    const spots: Hotspot[] = [];
+    checkIns.forEach(checkIn => {
+      // 0.001 degrees is approx 111 meters
+      const existing = spots.find(
+        h => Math.abs(h.lat - checkIn.location.lat) < 0.001 && 
+             Math.abs(h.lng - checkIn.location.lng) < 0.001
+      );
+      if (existing) {
+        existing.count += 1;
+        existing.lat = (existing.lat * (existing.count - 1) + checkIn.location.lat) / existing.count;
+        existing.lng = (existing.lng * (existing.count - 1) + checkIn.location.lng) / existing.count;
+      } else {
+        spots.push({ lat: checkIn.location.lat, lng: checkIn.location.lng, count: 1 });
+      }
+    });
+    return spots.filter(h => h.count >= 2);
+  }, [checkIns]);
 
   const loadCheckIns = async () => {
     try {
@@ -28,8 +55,17 @@ export default function DiaryPage() {
     }
   };
 
-  const handleMapClick = (lat: number, lng: number) => {
-    setSelectedLocation({ lat, lng });
+  const handleMapClick = async (lat: number, lng: number) => {
+    setDraftLocation({ lat, lng });
+    setDraftAddress("Đang tải địa chỉ...");
+    const address = await reverseGeocode(lat, lng);
+    setDraftAddress(address);
+  };
+
+  const handleConfirmDraft = () => {
+    if (draftLocation) {
+      setSelectedLocation(draftLocation);
+    }
   };
 
   const handleFindMyLocation = () => {
@@ -58,11 +94,14 @@ export default function DiaryPage() {
     setIsLocating(true);
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const loc = { lat: position.coords.latitude, lng: position.coords.longitude };
           setUserLocation(loc);
-          setSelectedLocation(loc); // Prompt check-in modal immediately at user's location
+          setDraftLocation(loc);
+          setDraftAddress("Đang tải địa chỉ...");
           setIsLocating(false);
+          const address = await reverseGeocode(loc.lat, loc.lng);
+          setDraftAddress(address);
         },
         (error) => {
           console.error("Geolocation error:", error);
@@ -83,11 +122,13 @@ export default function DiaryPage() {
     await diaryService.addCheckIn({
       userId: MOCK_USER_ID,
       location: selectedLocation,
+      address: draftAddress !== "Đang tải địa chỉ..." ? draftAddress : undefined,
       timestamp: new Date(),
       activityText: text
     });
     
-    // Refresh list
+    setDraftLocation(null);
+    setSelectedLocation(null);
     await loadCheckIns();
   };
 
@@ -134,7 +175,7 @@ export default function DiaryPage() {
           >
             <MapPin className={`w-6 h-6 ${isLocating ? 'animate-bounce' : ''}`} />
             <span className="font-semibold hidden sm:inline">
-              {isLocating ? 'Đang lấy vị trí...' : 'Check-in tại đây'}
+              {isLocating ? 'Đang lấy vị trí...' : 'Ghim vị trí của tôi'}
             </span>
           </button>
         </div>
@@ -143,7 +184,12 @@ export default function DiaryPage() {
         <MapWrapper 
           checkIns={checkIns} 
           onMapClick={handleMapClick} 
-          userLocation={userLocation} 
+          userLocation={userLocation}
+          draftLocation={draftLocation}
+          draftAddress={draftAddress}
+          onConfirmDraft={handleConfirmDraft}
+          onCancelDraft={() => setDraftLocation(null)}
+          hotspots={hotspots}
         />
       </div>
 
@@ -151,6 +197,7 @@ export default function DiaryPage() {
       {selectedLocation && (
         <CheckInModal 
           location={selectedLocation} 
+          address={draftAddress !== "Đang tải địa chỉ..." ? draftAddress : undefined}
           onClose={() => setSelectedLocation(null)}
           onSubmit={handleSubmitCheckIn}
         />

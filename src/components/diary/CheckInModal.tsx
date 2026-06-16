@@ -3,11 +3,12 @@ import { MapPin, X } from 'lucide-react';
 
 interface CheckInModalProps {
   location: { lat: number; lng: number };
+  address?: string;
   onClose: () => void;
   onSubmit: (text: string) => Promise<void>;
 }
 
-export function CheckInModal({ location, onClose, onSubmit }: CheckInModalProps) {
+export function CheckInModal({ location, address, onClose, onSubmit }: CheckInModalProps) {
   const [text, setText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -55,8 +56,8 @@ export function CheckInModal({ location, onClose, onSubmit }: CheckInModalProps)
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6">
           <div className="mb-4">
-            <p className="text-sm text-muted-foreground mb-4">
-              Tọa độ: <span className="font-mono bg-secondary px-2 py-1 rounded">{location.lat.toFixed(4)}, {location.lng.toFixed(4)}</span>
+            <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+              Vị trí: <span className="font-medium text-foreground bg-secondary px-2 py-1 rounded">{address || `${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`}</span>
             </p>
             <label className="block text-sm font-medium mb-2">Bạn đang làm gì ở đây?</label>
             <textarea
