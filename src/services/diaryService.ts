@@ -21,6 +21,12 @@ export interface CheckIn {
   address?: string;
   timestamp: Date;
   activityText: string;
+  weather?: {
+    temperature: number;
+    weatherCode: number;
+    emoji: string;
+    desc: string;
+  };
 }
 
 export async function reverseGeocode(lat: number, lng: number): Promise<string> {

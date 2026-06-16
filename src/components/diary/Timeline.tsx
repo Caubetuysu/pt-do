@@ -111,15 +111,20 @@ export function Timeline({ checkIns, onItemClick, onDeleteCheckIns }: TimelinePr
                   }
                 }}
               >
-                <div className="text-sm font-semibold text-emerald-500 mb-2">
-                  {checkIn.timestamp.toLocaleDateString('vi-VN', {
+                <div className="text-sm font-semibold text-emerald-500 mb-2 flex items-center justify-between">
+                  <span>{checkIn.timestamp.toLocaleDateString('vi-VN', {
                     weekday: 'short',
                     year: 'numeric',
                     month: 'short',
                     day: 'numeric',
                     hour: '2-digit',
                     minute: '2-digit'
-                  })}
+                  })}</span>
+                  {checkIn.weather && (
+                    <span className="text-base" title={`${checkIn.weather.desc} ${checkIn.weather.temperature}°C`}>
+                      {checkIn.weather.emoji} {checkIn.weather.temperature}°C
+                    </span>
+                  )}
                 </div>
                 <p className="text-foreground whitespace-pre-wrap">{checkIn.activityText}</p>
                 <div className="mt-3 text-xs text-muted-foreground flex items-center gap-1">

@@ -12,6 +12,7 @@ import { auth } from '@/lib/firebase';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User } from 'firebase/auth';
 import { FriendsPanel } from '@/components/diary/FriendsPanel';
 import { questService } from '@/services/questService';
+import { fetchWeather, getWeatherEmoji, getWeatherDesc } from '@/services/weatherService';
 import { LocateFixed, Navigation, MapPin, Award, Plane, X, LogIn, Users, Calendar } from 'lucide-react';
 
 interface Hotspot {
@@ -252,12 +253,27 @@ export default function DiaryPage() {
   const handleSubmitCheckIn = async (text: string) => {
     if (!selectedLocation || !currentUser) return;
     try {
+      // Fetch weather silently in background
+      let weatherData = undefined;
+      try {
+        const w = await fetchWeather(selectedLocation.lat, selectedLocation.lng);
+        if (w) {
+          weatherData = {
+            temperature: w.temperature,
+            weatherCode: w.weatherCode,
+            emoji: getWeatherEmoji(w.weatherCode),
+            desc: getWeatherDesc(w.weatherCode)
+          };
+        }
+      } catch { /* weather is optional */ }
+
       await diaryService.addCheckIn({
         userId: currentUser.uid,
         location: selectedLocation,
         address: draftAddress !== "Đang tải địa chỉ..." ? draftAddress : undefined,
         timestamp: new Date(),
-        activityText: text
+        activityText: text,
+        weather: weatherData
       });
       await loadCheckIns(currentUser.uid);
       
