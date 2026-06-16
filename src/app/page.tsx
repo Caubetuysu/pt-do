@@ -7,9 +7,9 @@ import { CheckInModal } from '@/components/diary/CheckInModal';
 import { StatisticsModal } from '@/components/diary/StatisticsModal';
 import { diaryService, CheckIn, reverseGeocode } from '@/services/diaryService';
 import { fetchOSRMRoute } from '@/services/routingService';
-import { LocateFixed, Navigation, MapPin, Award, Plane, X } from 'lucide-react';
-
-const MOCK_USER_ID = "traveler-user-123";
+import { auth } from '@/lib/firebase';
+import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User, signOut } from 'firebase/auth';
+import { LocateFixed, Navigation, MapPin, Award, Plane, X, LogIn, LogOut, Calendar } from 'lucide-react';
 
 interface Hotspot {
   lat: number;
@@ -42,24 +42,68 @@ export default function DiaryPage() {
   const [showStats, setShowStats] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
+
   const [routedDistance, setRoutedDistance] = useState<number>(0);
   const [routedDays, setRoutedDays] = useState<{dateStr: string, points: {lat: number, lng: number}[]}[]>([]);
   const [isRouting, setIsRouting] = useState(false);
 
   useEffect(() => {
-    loadCheckIns();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      setIsAuthChecking(false);
+      if (user) {
+        loadCheckIns(user.uid);
+      } else {
+        setCheckIns([]);
+        setRoutedDays([]);
+        setRoutedDistance(0);
+      }
+    });
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
+    if (currentUser && !sessionStorage.getItem('auto_checked_in')) {
+      sessionStorage.setItem('auto_checked_in', 'true');
+      
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          try {
+             await diaryService.addCheckIn({
+               userId: currentUser.uid,
+               location: { lat, lng },
+               activityText: "Vừa mở app",
+               timestamp: new Date()
+             });
+             loadCheckIns(currentUser.uid);
+          } catch (e) { console.error("Auto checkin failed", e); }
+        }, (error) => {
+          console.error("Geo error:", error);
+        });
+      }
+    }
+  }, [currentUser]);
+
+  const filteredCheckIns = useMemo(() => {
+    if (!selectedDateFilter) return checkIns;
+    return checkIns.filter(c => c.timestamp.toLocaleDateString('vi-VN') === selectedDateFilter);
+  }, [checkIns, selectedDateFilter]);
+
+  useEffect(() => {
     async function calculateRoutes() {
-      if (checkIns.length === 0) {
+      if (filteredCheckIns.length === 0) {
         setRoutedDistance(0);
         setRoutedDays([]);
         return;
       }
       setIsRouting(true);
       
-      const sorted = [...checkIns].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      const sorted = [...filteredCheckIns].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
       const daysMap = new Map<string, {lat: number, lng: number}[]>();
       sorted.forEach((checkIn) => {
         const dateStr = checkIn.timestamp.toLocaleDateString('vi-VN');
@@ -96,13 +140,13 @@ export default function DiaryPage() {
     }
     
     calculateRoutes();
-  }, [checkIns]);
+  }, [filteredCheckIns]);
 
   const { hotspots } = useMemo(() => {
     const spots: Hotspot[] = [];
     
     // Sort chronologically
-    const sorted = [...checkIns].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    const sorted = [...filteredCheckIns].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
     sorted.forEach((checkIn) => {
       // Hotspot calculation
@@ -122,11 +166,11 @@ export default function DiaryPage() {
     return {
       hotspots: spots.filter(h => h.count >= 2)
     };
-  }, [checkIns]);
+  }, [filteredCheckIns]);
 
-  const loadCheckIns = async () => {
+  const loadCheckIns = async (uid: string) => {
     try {
-      const data = await diaryService.getCheckIns(MOCK_USER_ID);
+      const data = await diaryService.getCheckIns(uid);
       setCheckIns(data);
     } catch (error) {
       console.error("Failed to load check-ins:", error);
@@ -195,19 +239,22 @@ export default function DiaryPage() {
   };
 
   const handleSubmitCheckIn = async (text: string) => {
-    if (!selectedLocation) return;
-    
-    await diaryService.addCheckIn({
-      userId: MOCK_USER_ID,
-      location: selectedLocation,
-      address: draftAddress !== "Đang tải địa chỉ..." ? draftAddress : undefined,
-      timestamp: new Date(),
-      activityText: text
-    });
-    
-    setDraftLocation(null);
-    setSelectedLocation(null);
-    await loadCheckIns();
+    if (!selectedLocation || !currentUser) return;
+    try {
+      await diaryService.addCheckIn({
+        userId: currentUser.uid,
+        location: selectedLocation,
+        address: draftAddress !== "Đang tải địa chỉ..." ? draftAddress : undefined,
+        timestamp: new Date(),
+        activityText: text
+      });
+      await loadCheckIns(currentUser.uid);
+      setSelectedLocation(null);
+      setDraftLocation(null);
+    } catch (e) {
+      console.error(e);
+      alert("Lỗi khi lưu check-in");
+    }
   };
 
   const handleTimelineClick = (lat: number, lng: number) => {
@@ -215,15 +262,47 @@ export default function DiaryPage() {
     // This will trigger the UserLocationMarker in BaseMap to flyTo this location
   };
 
-  const handleDeleteCheckIns = async (ids: string[]) => {
+  const handleDeleteCheckIns = async (ids: Set<string>) => {
+    if (!currentUser) return;
     try {
-      await diaryService.deleteCheckIns(ids);
-      await loadCheckIns();
+      for (const id of Array.from(ids)) {
+        await diaryService.deleteCheckIn(id);
+      }
+      await loadCheckIns(currentUser.uid);
     } catch (error) {
       console.error("Failed to delete check-ins:", error);
       alert("Đã xảy ra lỗi khi xóa dữ liệu.");
     }
   };
+
+  if (isAuthChecking) {
+    return <div className="h-screen w-full flex items-center justify-center bg-background"><span className="animate-pulse">Đang tải dữ liệu...</span></div>;
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-background p-4 text-center">
+        <Navigation className="w-16 h-16 text-emerald-500 mb-6" />
+        <h1 className="text-3xl font-bold mb-2">Nhật Ký Hành Trình</h1>
+        <p className="text-muted-foreground mb-8 max-w-md">Đăng nhập để bắt đầu ghi lại những hành trình của riêng bạn. Dữ liệu được bảo mật và đồng bộ trên mọi thiết bị.</p>
+        <button 
+          onClick={async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+              await signInWithPopup(auth, provider);
+            } catch (e) {
+              console.error(e);
+              alert('Đăng nhập thất bại. Bạn đã bật Google Provider trong Firebase Console chưa?');
+            }
+          }}
+          className="bg-emerald-500 text-white px-6 py-3 rounded-xl shadow-lg hover:bg-emerald-600 font-semibold flex items-center gap-2"
+        >
+          <LogIn className="w-5 h-5" />
+          Đăng nhập bằng Google
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="relative h-screen w-full bg-background overflow-hidden">
@@ -235,16 +314,41 @@ export default function DiaryPage() {
             <Navigation className="w-5 h-5 text-emerald-500 shrink-0" />
             <span className="truncate">Nhật Ký Hành Trình</span>
           </h1>
-          <button 
-            onClick={() => setIsSidebarOpen(false)} 
-            className="p-3 shrink-0 bg-secondary/50 hover:bg-secondary rounded-full transition-colors flex items-center justify-center shadow-sm"
-            aria-label="Đóng"
-          >
-            <X className="w-6 h-6 text-foreground font-bold" />
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            {currentUser.photoURL && (
+              <img src={currentUser.photoURL} alt="Avatar" className="w-8 h-8 rounded-full border border-border" />
+            )}
+            <button 
+              onClick={() => setIsSidebarOpen(false)} 
+              className="p-2 bg-secondary/50 hover:bg-secondary rounded-full transition-colors flex items-center justify-center shadow-sm"
+              aria-label="Đóng"
+            >
+              <X className="w-5 h-5 text-foreground font-bold" />
+            </button>
+          </div>
         </div>
+        
+        {/* Calendar Filter */}
+        <div className="px-4 py-3 bg-secondary/20 border-b border-border flex items-center gap-2">
+          <Calendar className="w-4 h-4 text-muted-foreground" />
+          <input 
+            type="date" 
+            value={selectedDateFilter || ''}
+            onChange={(e) => setSelectedDateFilter(e.target.value ? new Date(e.target.value).toLocaleDateString('vi-VN') : null)}
+            className="bg-transparent border-none text-sm font-medium focus:ring-0 w-full cursor-pointer"
+          />
+          {selectedDateFilter && (
+            <button 
+              onClick={() => setSelectedDateFilter(null)}
+              className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap"
+            >
+              Xóa lọc
+            </button>
+          )}
+        </div>
+
         <div className="flex-1 overflow-hidden">
-          <Timeline checkIns={checkIns} onItemClick={handleTimelineClick} onDeleteCheckIns={handleDeleteCheckIns} />
+          <Timeline checkIns={filteredCheckIns} onItemClick={handleTimelineClick} onDeleteCheckIns={handleDeleteCheckIns} />
         </div>
       </div>
 
@@ -315,7 +419,7 @@ export default function DiaryPage() {
 
         {/* The Map */}
         <MapWrapper 
-          checkIns={checkIns} 
+          checkIns={filteredCheckIns} 
           onMapClick={handleMapClick} 
           userLocation={userLocation}
           draftLocation={draftLocation}
@@ -338,7 +442,7 @@ export default function DiaryPage() {
       )}
       
       {showStats && (
-        <StatisticsModal checkIns={checkIns} onClose={() => setShowStats(false)} />
+        <StatisticsModal checkIns={filteredCheckIns} onClose={() => setShowStats(false)} />
       )}
       
     </div>
