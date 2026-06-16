@@ -3,6 +3,8 @@ import { TaskDashboard } from '@/components/TaskDashboard';
 import { notion } from '@/lib/notion';
 import { NotionPageRenderer } from '@/components/NotionPageRenderer';
 
+export const revalidate = 60; // Revalidate every 60 seconds
+
 export default async function Home() {
   // Fetch the Notion page the user requested
   let recordMap = null;
