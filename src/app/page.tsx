@@ -2,11 +2,26 @@
 
 import React, { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
-import { TaskForm } from '../components/TaskForm';
+import { taskService } from '../services/taskService';
+import { 
+  ListTodo, 
+  CheckSquare, 
+  Square,
+  ListFilter,
+  ArrowUpDown,
+  Zap,
+  Search,
+  Maximize2,
+  MoreHorizontal,
+  ChevronDown,
+  Plus
+} from 'lucide-react';
 
 export default function Dashboard() {
   const tasks = useStore(state => state.tasks);
   const [mounted, setMounted] = useState(false);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -14,125 +29,138 @@ export default function Dashboard() {
 
   if (!mounted) return null;
 
-  // Calculate times
-  const now = new Date();
-  
-  const calculateDaysLeft = (dueDate: Date) => {
-    const diffTime = dueDate.getTime() - now.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const handleAddTask = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && newTaskTitle.trim()) {
+      // Default new task with a due date 7 days from now just to have data
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + 7);
+      
+      await taskService.addTask("mock-user-123", {
+        title: newTaskTitle.trim(),
+        description: '',
+        dueDate: dueDate,
+        eisenhowerMatrix: 'Q2',
+        status: 'TODO',
+        subtasks: [],
+      });
+      setNewTaskTitle('');
+      setIsAdding(false);
+    }
+  };
+
+  const formatDateRange = (date: Date) => {
+    const start = new Date(); // Mock start date as today for the UI like the screenshot
+    const end = new Date(date);
+    
+    const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' };
+    const startStr = start.toLocaleDateString('en-US', options);
+    const endStr = end.toLocaleDateString('en-US', options);
+    
+    // Some mock logic to match screenshot look
+    if (end.getFullYear() > 2026) {
+      return endStr;
+    }
+    return `${startStr} → ${endStr}`;
   };
 
   return (
-    <div className="min-h-screen p-8 max-w-7xl mx-auto flex flex-col gap-8">
-      <header className="flex justify-between items-end border-b border-zinc-800 pb-6">
-        <div>
-          <h1 className="text-4xl font-light tracking-tight text-zinc-100">
-            Tổng quan <span className="text-zinc-500">công việc</span>
-          </h1>
-          <p className="text-zinc-400 mt-2">Quản lý tiến độ và ghi chú của bạn hôm nay.</p>
+    <div className="flex-1 flex flex-col h-full bg-background px-16 lg:px-32 py-12 lg:py-24 max-w-5xl mx-auto w-full">
+      {/* Header */}
+      <header className="mb-8">
+        <div className="w-16 h-16 mb-6">
+          <ListTodo className="w-full h-full text-emerald-500" strokeWidth={1.5} />
         </div>
-        <div className="text-right">
-          <p className="text-sm font-mono text-zinc-500">Level 12 • 450 EXP</p>
-          <p className="text-xs text-zinc-600 mt-1">Hạng: Sinh viên cày cuốc</p>
-        </div>
+        <h1 className="text-[40px] font-bold text-foreground tracking-tight">
+          Nhiệm vụ hằng ngày
+        </h1>
       </header>
 
-      {/* Smart Deadline Countdown Widget */}
-      <section>
-        <h2 className="text-xl font-medium text-zinc-200 mb-4 flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
-          Đếm ngược Deadline
-        </h2>
-        
-        {tasks.length === 0 ? (
-          <div className="text-zinc-500 p-4 border border-zinc-800 rounded-xl bg-zinc-900/30">
-            Chưa có công việc nào. Hãy thêm ở form bên dưới.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {tasks.map(task => {
-              const daysLeft = calculateDaysLeft(task.dueDate);
-              const isUrgent = daysLeft <= 1;
-              const isNear = daysLeft > 1 && daysLeft <= 3;
-              
-              return (
-                <div key={task.id} className={`p-5 rounded-xl transition-all border ${
-                  isUrgent ? 'border-red-900/50 bg-red-950/20 glow-red' : 
-                  isNear ? 'border-amber-900/50 bg-amber-950/20' : 
-                  'border-zinc-800 bg-zinc-900/50'
-                }`}>
-                  <div className="flex justify-between items-start">
-                    <h3 className={`font-semibold text-lg ${
-                      isUrgent ? 'text-red-400' : isNear ? 'text-amber-400' : 'text-zinc-300'
-                    }`}>{task.title}</h3>
-                    <span className={`text-xs font-mono px-2 py-1 rounded ${
-                      isUrgent ? 'bg-red-500/20 text-red-300' : 
-                      isNear ? 'bg-amber-500/20 text-amber-300' : 
-                      'bg-zinc-800 text-zinc-500'
-                    }`}>{task.eisenhowerMatrix}</span>
-                  </div>
-                  {task.description && <p className="text-zinc-400 text-sm mt-2">{task.description}</p>}
-                  
-                  <div className={`mt-4 pt-4 border-t ${
-                    isUrgent ? 'border-red-900/30' : isNear ? 'border-amber-900/30' : 'border-zinc-800'
-                  }`}>
-                    <p className={`text-3xl font-mono font-bold tracking-tighter ${
-                      isUrgent ? 'text-red-500' : isNear ? 'text-amber-500' : 'text-zinc-400'
-                    }`}>
-                      {daysLeft} Ngày
-                    </p>
-                    <p className={`text-xs uppercase tracking-widest mt-1 ${
-                      isUrgent ? 'text-red-400/80' : isNear ? 'text-amber-500/70' : 'text-zinc-500'
-                    }`}>
-                      {isUrgent ? 'Khẩn cấp' : isNear ? 'Sắp đến hạn' : 'Thong thả'}
-                    </p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
-      </section>
-
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-4">
-        {/* Form and Todo List */}
-        <div className="space-y-6">
-          <TaskForm />
+      {/* Toolbar */}
+      <div className="flex justify-between items-center mb-1 border-b border-border pb-2">
+        <div className="flex gap-4">
+          <button className="flex items-center gap-2 text-sm font-medium text-foreground px-2 py-1 bg-secondary/50 rounded">
+            <ListTodo className="w-4 h-4" />
+            To Do
+          </button>
+          <button className="flex items-center gap-2 text-sm text-muted-foreground hover:bg-secondary px-2 py-1 rounded transition-colors">
+            <CheckSquare className="w-4 h-4" />
+            Done
+          </button>
+        </div>
+        <div className="flex items-center gap-1 text-muted-foreground">
+          <button className="p-1.5 hover:bg-secondary rounded transition-colors"><ListFilter className="w-4 h-4" /></button>
+          <button className="p-1.5 hover:bg-secondary rounded transition-colors"><ArrowUpDown className="w-4 h-4" /></button>
+          <button className="p-1.5 hover:bg-secondary rounded transition-colors"><Zap className="w-4 h-4" /></button>
+          <button className="p-1.5 hover:bg-secondary rounded transition-colors"><Search className="w-4 h-4" /></button>
+          <button className="p-1.5 hover:bg-secondary rounded transition-colors"><Maximize2 className="w-4 h-4" /></button>
+          <button className="p-1.5 hover:bg-secondary rounded transition-colors"><MoreHorizontal className="w-4 h-4" /></button>
           
-          <div>
-            <h2 className="text-xl font-medium text-zinc-200 mb-4">Danh sách công việc</h2>
-            <div className="space-y-3">
-              {tasks.length === 0 ? (
-                <p className="text-zinc-500 text-sm">Trống.</p>
-              ) : tasks.map((t) => (
-                <div key={t.id} className="flex items-center gap-4 p-4 rounded-lg border border-zinc-800 bg-zinc-900">
-                  <div className="w-5 h-5 rounded border border-zinc-500 flex items-center justify-center cursor-pointer hover:bg-zinc-800">
-                    {/* Checkbox placeholder */}
-                  </div>
-                  <div>
-                    <p className="text-zinc-200">{t.title}</p>
-                    <p className="text-xs text-zinc-500 mt-1">{t.dueDate.toLocaleDateString('vi-VN')}</p>
-                  </div>
-                </div>
-              ))}
+          <div className="flex items-center bg-[#2eaadc] text-white rounded ml-2 cursor-pointer hover:bg-[#2791bc] transition-colors">
+            <div className="px-3 py-1.5 text-sm font-medium">New</div>
+            <div className="px-2 py-1.5 border-l border-white/20 hover:bg-white/10 transition-colors">
+              <ChevronDown className="w-4 h-4" />
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Notes Preview */}
-        <div>
-          <h2 className="text-xl font-medium text-zinc-200 mb-4">Take Note Gần Đây</h2>
-          <div className="space-y-3">
-            <div className="p-4 rounded-lg border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800/50 transition-colors cursor-pointer group">
-              <div className="flex justify-between">
-                <h3 className="text-zinc-300 font-medium group-hover:text-white transition-colors">Ý tưởng cho đồ án</h3>
-                <span className="text-xs text-zinc-500">Vừa xong</span>
+      {/* List */}
+      <div className="flex flex-col">
+        {tasks.map((task) => (
+          <div 
+            key={task.id} 
+            className="group flex items-center justify-between py-[6px] border-b border-border/50 hover:bg-secondary/50 transition-colors cursor-pointer"
+          >
+            <div className="flex items-center gap-3 flex-1 overflow-hidden">
+              <div className="w-6 flex items-center justify-center flex-shrink-0">
+                {task.status === 'DONE' ? (
+                  <CheckSquare className="w-4 h-4 text-emerald-500" />
+                ) : (
+                  <Square className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
+                )}
               </div>
-              <p className="text-xs font-mono bg-zinc-800 inline-block px-2 py-1 rounded text-zinc-400 mt-3">Web App</p>
+              <span className={`text-[15px] truncate font-medium ${task.status === 'DONE' ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
+                {task.title}
+              </span>
+            </div>
+            
+            <div className="text-sm text-muted-foreground whitespace-nowrap pl-4 opacity-80 group-hover:opacity-100 transition-opacity">
+              {formatDateRange(task.dueDate)}
             </div>
           </div>
+        ))}
+
+        {/* Inline New Task Input */}
+        <div className="flex items-center py-[6px] mt-1 text-muted-foreground group">
+          {isAdding ? (
+            <div className="flex items-center gap-3 w-full">
+              <div className="w-6 flex items-center justify-center flex-shrink-0">
+                <Square className="w-4 h-4 opacity-50" />
+              </div>
+              <input
+                autoFocus
+                type="text"
+                value={newTaskTitle}
+                onChange={(e) => setNewTaskTitle(e.target.value)}
+                onKeyDown={handleAddTask}
+                onBlur={() => {
+                  if (!newTaskTitle.trim()) setIsAdding(false);
+                }}
+                placeholder="Type a task and press Enter..."
+                className="flex-1 bg-transparent border-none outline-none text-[15px] text-foreground placeholder:text-muted-foreground"
+              />
+            </div>
+          ) : (
+            <button 
+              onClick={() => setIsAdding(true)}
+              className="flex items-center gap-2 hover:bg-secondary px-2 py-1 rounded transition-colors -ml-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="text-[15px]">New task</span>
+            </button>
+          )}
         </div>
-      </section>
+      </div>
     </div>
   );
 }

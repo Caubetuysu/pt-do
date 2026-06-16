@@ -27,13 +27,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
       >
         <FirebaseSyncProvider>
-          <div className="flex">
+          <div className="flex min-h-screen bg-background text-foreground">
             <Sidebar />
-            <main className="flex-1 ml-64 bg-zinc-950 text-zinc-50 min-h-screen">
-              {children}
+            <main className="flex-1 ml-60 flex flex-col h-screen overflow-hidden">
+              <div className="flex-1 overflow-y-auto">
+                {children}
+              </div>
             </main>
           </div>
         </FirebaseSyncProvider>

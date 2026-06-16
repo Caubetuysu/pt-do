@@ -5,26 +5,27 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-background: #09090b; /* Zinc 950 */
-  --color-foreground: #fafafa; /* Zinc 50 */
-  --color-card: #18181b; /* Zinc 900 */
-  --color-card-foreground: #fafafa;
-  --color-popover: #18181b;
-  --color-popover-foreground: #fafafa;
-  --color-primary: #fafafa;
-  --color-primary-foreground: #18181b;
-  --color-secondary: #27272a; /* Zinc 800 */
-  --color-secondary-foreground: #fafafa;
-  --color-muted: #27272a;
-  --color-muted-foreground: #a1a1aa; /* Zinc 400 */
-  --color-accent: #27272a;
-  --color-accent-foreground: #fafafa;
-  --color-destructive: #7f1d1d; /* Red 900 */
-  --color-destructive-foreground: #fafafa;
-  --color-border: #27272a;
-  --color-input: #27272a;
-  --color-ring: #d4d4d8; /* Zinc 300 */
-  --radius: 0.5rem;
+  --color-background: #191919;
+  --color-foreground: rgba(255, 255, 255, 0.81);
+  --color-card: #202020;
+  --color-card-foreground: rgba(255, 255, 255, 0.81);
+  --color-popover: #202020;
+  --color-popover-foreground: rgba(255, 255, 255, 0.81);
+  --color-primary: #2eaadc;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #2f2f2f;
+  --color-secondary-foreground: rgba(255, 255, 255, 0.81);
+  --color-muted: transparent;
+  --color-muted-foreground: rgba(255, 255, 255, 0.44);
+  --color-accent: #2f2f2f;
+  --color-accent-foreground: rgba(255, 255, 255, 0.81);
+  --color-destructive: #eb5757;
+  --color-destructive-foreground: #ffffff;
+  --color-border: rgba(255, 255, 255, 0.094);
+  --color-input: rgba(255, 255, 255, 0.094);
+  --color-ring: rgba(255, 255, 255, 0.44);
+  --color-sidebar: #202020;
+  --radius: 0.25rem; /* Notion uses smaller border radius */
 }
 
 :root {
@@ -120,37 +121,32 @@ body {
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #191919;
+  --foreground: rgba(255, 255, 255, 0.81);
+  --card: #202020;
+  --card-foreground: rgba(255, 255, 255, 0.81);
+  --popover: #202020;
+  --popover-foreground: rgba(255, 255, 255, 0.81);
+  --primary: #2eaadc;
+  --primary-foreground: #ffffff;
+  --secondary: #2f2f2f;
+  --secondary-foreground: rgba(255, 255, 255, 0.81);
+  --muted: transparent;
+  --muted-foreground: rgba(255, 255, 255, 0.44);
+  --accent: #2f2f2f;
+  --accent-foreground: rgba(255, 255, 255, 0.81);
+  --destructive: #eb5757;
+  --border: rgba(255, 255, 255, 0.094);
+  --input: rgba(255, 255, 255, 0.094);
+  --ring: rgba(255, 255, 255, 0.44);
+  --sidebar: #202020;
+  --sidebar-foreground: rgba(255, 255, 255, 0.81);
+  --sidebar-primary: #2eaadc;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #2f2f2f;
+  --sidebar-accent-foreground: rgba(255, 255, 255, 0.81);
+  --sidebar-border: rgba(255, 255, 255, 0.094);
+  --sidebar-ring: rgba(255, 255, 255, 0.44);
 }
 
 @layer base {
