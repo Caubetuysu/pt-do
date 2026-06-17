@@ -5,7 +5,8 @@ import { User } from 'firebase/auth';
 import { UserProfile, userService } from '@/services/userService';
 import { friendService, FriendRequest } from '@/services/friendService';
 import { CheckIn } from '@/services/diaryService';
-import { Users, UserPlus, Search, X, Check, MapPin, Bell, UserX, ChevronRight } from 'lucide-react';
+import { TripFeedPanel } from './TripFeedPanel';
+import { Users, UserPlus, Search, X, Check, MapPin, Bell, UserX, ChevronRight, Radio } from 'lucide-react';
 
 interface FriendsPanelProps {
   currentUser: User;
@@ -13,7 +14,7 @@ interface FriendsPanelProps {
 }
 
 export function FriendsPanel({ currentUser, onFriendCheckInsChange }: FriendsPanelProps) {
-  const [tab, setTab] = useState<'friends'|'requests'|'search'>('friends');
+  const [tab, setTab] = useState<'friends'|'requests'|'search'|'trips'>('friends');
   const [friends, setFriends] = useState<UserProfile[]>([]);
   const [requests, setRequests] = useState<FriendRequest[]>([]);
   const [searchEmail, setSearchEmail] = useState('');
@@ -118,6 +119,13 @@ export function FriendsPanel({ currentUser, onFriendCheckInsChange }: FriendsPan
           <UserPlus className="w-4 h-4" />
           Thêm
         </button>
+        <button 
+          onClick={() => setTab('trips')} 
+          className={`flex-1 py-2.5 text-sm font-medium flex items-center justify-center gap-1.5 transition-colors ${tab === 'trips' ? 'text-emerald-500 border-b-2 border-emerald-500' : 'text-muted-foreground'}`}
+        >
+          <Radio className="w-4 h-4" />
+          Live
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
@@ -221,6 +229,12 @@ export function FriendsPanel({ currentUser, onFriendCheckInsChange }: FriendsPan
                 </button>
               </div>
             )}
+          </div>
+        )}
+        {/* TRIPS TAB */}
+        {tab === 'trips' && (
+          <div className="-m-4 h-full">
+            <TripFeedPanel currentUser={currentUser} />
           </div>
         )}
       </div>

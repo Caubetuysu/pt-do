@@ -12,8 +12,12 @@ import {
   orderBy,
   serverTimestamp,
   updateDoc,
-  increment
+  increment,
+  onSnapshot,
+  Unsubscribe,
+  limit
 } from 'firebase/firestore';
+import { diaryService, CheckIn } from './diaryService';
 
 export interface SharedTrip {
   id: string;
@@ -120,5 +124,41 @@ export const socialService = {
 
   async deleteComment(commentId: string): Promise<void> {
     await deleteDoc(doc(db, COMMENTS_COLLECTION, commentId));
+  },
+
+  // --- Live Trip Feed ---
+  subscribeToTripFeed(
+    trip: SharedTrip,
+    callback: (items: { uid: string; checkIn: CheckIn }[]) => void
+  ): Unsubscribe {
+    // Listen to the travel_diary collection for changes from trip members
+    const q = query(
+      collection(db, 'travel_diary'),
+      where('userId', 'in', trip.memberUids.slice(0, 10)),
+      limit(50)
+    );
+
+    return onSnapshot(q, (snap) => {
+      const items = snap.docs
+        .map(d => {
+          const data = d.data();
+          return {
+            uid: data.userId as string,
+            checkIn: {
+              id: d.id,
+              ...data,
+              timestamp: data.timestamp?.toDate() || new Date(),
+            } as CheckIn
+          };
+        })
+        .sort((a, b) => b.checkIn.timestamp.getTime() - a.checkIn.timestamp.getTime())
+        .slice(0, 30);
+      callback(items);
+    });
+  },
+
+  async getTripMembers(trip: SharedTrip): Promise<{ uid: string; displayName: string; photoURL: string }[]> {
+    // Return basic info from memberUids — caller fetches from userService
+    return trip.memberUids.map(uid => ({ uid, displayName: uid, photoURL: '' }));
   }
 };

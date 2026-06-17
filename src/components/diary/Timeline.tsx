@@ -120,11 +120,16 @@ export function Timeline({ checkIns, onItemClick, onDeleteCheckIns }: TimelinePr
                     hour: '2-digit',
                     minute: '2-digit'
                   })}</span>
-                  {checkIn.weather && (
-                    <span className="text-base" title={`${checkIn.weather.desc} ${checkIn.weather.temperature}°C`}>
-                      {checkIn.weather.emoji} {checkIn.weather.temperature}°C
-                    </span>
-                  )}
+                  <div className="flex items-center gap-1.5">
+                    {checkIn.mood && (
+                      <span className="text-base" title="Tâm trạng">{checkIn.mood}</span>
+                    )}
+                    {checkIn.weather && (
+                      <span className="text-base" title={`${checkIn.weather.desc} ${checkIn.weather.temperature}°C`}>
+                        {checkIn.weather.emoji} {checkIn.weather.temperature}°C
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className="text-foreground whitespace-pre-wrap">{checkIn.activityText}</p>
                 <div className="mt-3 text-xs text-muted-foreground flex items-center gap-1">

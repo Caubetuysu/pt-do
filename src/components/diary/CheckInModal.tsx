@@ -7,15 +7,24 @@ const DEFAULT_LOCATIONS = [
   { label: 'Phòng trọ', text: 'Phòng trọ', icon: <Building2 className="w-4 h-4" /> },
 ];
 
+const MOODS = [
+  { emoji: '🤩', label: 'Tuyệt vời' },
+  { emoji: '😊', label: 'Vui' },
+  { emoji: '😐', label: 'Bình thường' },
+  { emoji: '😢', label: 'Buồn' },
+  { emoji: '😤', label: 'Bực bội' },
+];
+
 interface CheckInModalProps {
   location: { lat: number; lng: number };
   address?: string;
   onClose: () => void;
-  onSubmit: (text: string) => Promise<void>;
+  onSubmit: (text: string, mood?: string) => Promise<void>;
 }
 
 export function CheckInModal({ location, address, onClose, onSubmit }: CheckInModalProps) {
   const [text, setText] = useState('');
+  const [selectedMood, setSelectedMood] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,12 +33,11 @@ export function CheckInModal({ location, address, onClose, onSubmit }: CheckInMo
     
     setIsSubmitting(true);
     try {
-      // Set a 10-second timeout for the Firebase write
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('TIMEOUT')), 10000)
       );
       
-      await Promise.race([onSubmit(text), timeoutPromise]);
+      await Promise.race([onSubmit(text, selectedMood), timeoutPromise]);
       onClose();
     } catch (error: any) {
       console.error('Submit error', error);
@@ -91,8 +99,31 @@ export function CheckInModal({ location, address, onClose, onSubmit }: CheckInMo
               placeholder="VD: Đang uống cafe ngắm biển..."
             />
           </div>
+
+          {/* Mood Picker */}
+          <div className="mb-5">
+            <label className="block text-sm font-medium mb-2.5">Tâm trạng hiện tại?</label>
+            <div className="flex gap-2">
+              {MOODS.map((mood) => (
+                <button
+                  key={mood.emoji}
+                  type="button"
+                  title={mood.label}
+                  onClick={() => setSelectedMood(selectedMood === mood.emoji ? undefined : mood.emoji)}
+                  className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-xl border-2 transition-all text-xl ${
+                    selectedMood === mood.emoji
+                      ? 'border-emerald-500 bg-emerald-500/10 scale-110'
+                      : 'border-border bg-secondary/30 hover:border-emerald-400 hover:bg-emerald-500/5'
+                  }`}
+                >
+                  <span>{mood.emoji}</span>
+                  <span className="text-[9px] text-muted-foreground font-medium">{mood.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
           
-          <div className="flex justify-end gap-3 mt-6">
+          <div className="flex justify-end gap-3 mt-4">
             <button
               type="button"
               onClick={onClose}

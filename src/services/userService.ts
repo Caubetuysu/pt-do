@@ -22,6 +22,9 @@ export interface UserProfile {
   badges: string[];
   isPublic: boolean;
   createdAt: Date | null;
+  currentStreak: number;
+  longestStreak: number;
+  lastCheckInDate: string | null; // 'YYYY-MM-DD'
 }
 
 const USERS_COLLECTION = 'users';
@@ -88,5 +91,40 @@ export const userService = {
     const level = getLevelFromKm(totalKm);
     const ref = doc(db, USERS_COLLECTION, uid);
     await updateDoc(ref, { totalKm, totalPlaces, level });
+  },
+
+  async updateStreak(uid: string): Promise<{ streak: number; isNewRecord: boolean; milestoneReached: number | null }> {
+    const ref = doc(db, USERS_COLLECTION, uid);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return { streak: 0, isNewRecord: false, milestoneReached: null };
+
+    const data = snap.data();
+    const today = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
+    const lastDate: string | null = data.lastCheckInDate || null;
+    const current: number = data.currentStreak || 0;
+    const longest: number = data.longestStreak || 0;
+
+    // Already checked in today — no change
+    if (lastDate === today) return { streak: current, isNewRecord: false, milestoneReached: null };
+
+    // Yesterday? Continue streak
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().slice(0, 10);
+
+    const newStreak = lastDate === yesterdayStr ? current + 1 : 1;
+    const newLongest = Math.max(longest, newStreak);
+    const isNewRecord = newStreak > longest;
+
+    await updateDoc(ref, {
+      currentStreak: newStreak,
+      longestStreak: newLongest,
+      lastCheckInDate: today
+    });
+
+    const MILESTONES = [3, 7, 14, 30];
+    const milestoneReached = MILESTONES.find(m => newStreak === m) ?? null;
+
+    return { streak: newStreak, isNewRecord, milestoneReached };
   }
 };

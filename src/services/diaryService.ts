@@ -21,6 +21,7 @@ export interface CheckIn {
   address?: string;
   timestamp: Date;
   activityText: string;
+  mood?: string; // e.g. '😊', '😐', '😢', '🤩', '😤'
   weather?: {
     temperature: number;
     weatherCode: number;

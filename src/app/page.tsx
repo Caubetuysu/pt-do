@@ -272,7 +272,7 @@ export default function DiaryPage() {
     }
   };
 
-  const handleSubmitCheckIn = async (text: string) => {
+  const handleSubmitCheckIn = async (text: string, mood?: string) => {
     if (!selectedLocation || !currentUser) return;
     try {
       // Fetch weather silently in background
@@ -295,19 +295,32 @@ export default function DiaryPage() {
         address: draftAddress !== "Đang tải địa chỉ..." ? draftAddress : undefined,
         timestamp: new Date(),
         activityText: text,
+        mood,
         weather: weatherData
       });
       await loadCheckIns(currentUser.uid);
       
-      // Update quest progress
+      // Update quest progress + streak in parallel
       const hour = new Date().getHours();
       try {
-        const newBadges = await questService.updateQuestProgress(currentUser.uid, text, 0, hour);
-        if (newBadges.length > 0) {
-          alert(`🎉 Chúc mừng! Bạn vừa đạt được huy hiệu: ${newBadges.join(', ')}`);
-        }
+        const [newBadges, streakResult] = await Promise.all([
+          questService.updateQuestProgress(currentUser.uid, text, 0, hour),
+          userService.updateStreak(currentUser.uid)
+        ]);
+        // Update custom quests too
+        await questService.updateCustomQuestProgress(currentUser.uid, 0);
+
+        // Refresh profile for updated streak display
+        const updated = await userService.getProfile(currentUser.uid);
+        setUserProfile(updated);
+
+        const notifications: string[] = [];
+        if (newBadges.length > 0) notifications.push(`🏅 Huy hiệu mới: ${newBadges.join(', ')}`);
+        if (streakResult.milestoneReached) notifications.push(`🔥 ${streakResult.milestoneReached} ngày liên tiếp! Tuyệt vời!`);
+        else if (streakResult.streak > 1) notifications.push(`🔥 Streak ${streakResult.streak} ngày!`);
+        if (notifications.length > 0) alert(notifications.join('\n'));
       } catch (questErr) {
-        console.error('Quest update failed:', questErr);
+        console.error('Post check-in updates failed:', questErr);
       }
 
       setSelectedLocation(null);

@@ -9,7 +9,9 @@ import {
   query,
   where,
   serverTimestamp,
-  Timestamp
+  Timestamp,
+  deleteDoc,
+  updateDoc
 } from 'firebase/firestore';
 
 export interface Quest {
@@ -34,6 +36,20 @@ const QUEST_POOL: Omit<Quest, 'id' | 'currentCount' | 'completed' | 'expiresAt'>
   { title: 'Tập Thể Dục', description: 'Check-in lúc sáng sớm 3 ngày liên tiếp', emoji: '💪', targetCount: 3, badge: '💪 Sức Khỏe' },
   { title: 'Mọt Cafe', description: 'Check-in địa điểm có từ "cafe" hoặc "cà phê"', emoji: '☕', targetCount: 3, badge: '☕ Tín Đồ Cafe' },
 ];
+
+export interface CustomQuest {
+  id: string;
+  uid: string;
+  title: string;
+  emoji: string;
+  targetCount: number;
+  currentCount: number;
+  type: 'checkin' | 'km'; // 'checkin' = count check-ins, 'km' = distance
+  completed: boolean;
+  createdAt: Date | null;
+}
+
+const CUSTOM_QUESTS_COLLECTION = 'custom_quests';
 
 const QUESTS_COLLECTION = 'quests';
 
@@ -111,6 +127,48 @@ export const questService = {
       }
     }
     return newBadges;
+  },
+
+  // ---- Custom Quests ----
+  async addCustomQuest(uid: string, quest: Pick<CustomQuest, 'title' | 'emoji' | 'targetCount' | 'type'>): Promise<string> {
+    const ref = await addDoc(collection(db, CUSTOM_QUESTS_COLLECTION), {
+      uid,
+      ...quest,
+      currentCount: 0,
+      completed: false,
+      createdAt: serverTimestamp()
+    });
+    return ref.id;
+  },
+
+  async getCustomQuests(uid: string): Promise<CustomQuest[]> {
+    const q = query(collection(db, CUSTOM_QUESTS_COLLECTION), where('uid', '==', uid));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({
+      id: d.id,
+      ...d.data(),
+      createdAt: d.data().createdAt?.toDate() || null
+    }) as CustomQuest);
+  },
+
+  async updateCustomQuestProgress(uid: string, distanceKm: number): Promise<void> {
+    const quests = await this.getCustomQuests(uid);
+    for (const quest of quests) {
+      if (quest.completed) continue;
+      const increment = quest.type === 'km' ? distanceKm : 1;
+      if (increment === 0 && quest.type === 'km') continue;
+      const newCount = quest.currentCount + increment;
+      const completed = newCount >= quest.targetCount;
+      await updateDoc(doc(db, CUSTOM_QUESTS_COLLECTION, quest.id), { currentCount: newCount, completed });
+    }
+  },
+
+  async deleteCustomQuest(questId: string): Promise<void> {
+    await deleteDoc(doc(db, CUSTOM_QUESTS_COLLECTION, questId));
+  },
+
+  async resetCustomQuest(questId: string): Promise<void> {
+    await updateDoc(doc(db, CUSTOM_QUESTS_COLLECTION, questId), { currentCount: 0, completed: false });
   }
 };
 
