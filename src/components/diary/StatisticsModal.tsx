@@ -172,43 +172,22 @@ export function StatisticsModal({ checkIns, currentUser, onClose }: StatisticsMo
     ['leaderboard', <Trophy className="w-4 h-4" />, 'BXH'] as const,
   ];
 
+  const currentTabData = TABS.find(t => t[0] === tab);
+
   return (
     <>
       <div className="fixed inset-0 z-[9999] bg-black/40 flex items-center justify-center p-4">
         <div className="bg-card w-full max-w-lg rounded-2xl shadow-2xl border border-border overflow-hidden max-h-[90vh] flex flex-col">
           
-          {/* Header */}
-          <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-5 text-white relative shrink-0">
-            <button onClick={onClose} className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors">
+          {/* Simple Header */}
+          <div className="flex items-center justify-between p-4 border-b border-border bg-secondary/20">
+            <div className="flex items-center gap-2 text-emerald-500">
+              {currentTabData?.[1]}
+              <h2 className="text-lg font-bold">{currentTabData?.[2]}</h2>
+            </div>
+            <button onClick={onClose} className="p-2 hover:bg-secondary rounded-full transition-colors text-muted-foreground">
               <X className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-3 mb-1">
-              <Award className="w-7 h-7 text-yellow-300" />
-              <h2 className="text-xl font-bold">Bảng Phong Thần</h2>
-            </div>
-            <p className="text-emerald-100 text-sm">Tháng {currentMonth + 1}/{currentYear} • {stats.count} địa điểm • {stats.distance.toFixed(1)} km</p>
-            {myProfile && (
-              <button
-                onClick={() => setShowProfileCard(true)}
-                className="mt-3 flex items-center gap-2 bg-white/15 hover:bg-white/25 rounded-xl px-3 py-1.5 text-sm font-medium transition-colors"
-              >
-                <img src={currentUser.photoURL || ''} alt="" className="w-6 h-6 rounded-full" />
-                Xem Profile Card của tôi ✨
-              </button>
-            )}
-          </div>
-
-          {/* Tabs */}
-          <div className="flex border-b border-border shrink-0 overflow-x-auto">
-            {TABS.map(([key, icon, label]) => (
-              <button
-                key={key}
-                onClick={() => setTab(key as any)}
-                className={`flex-1 min-w-fit py-2.5 text-xs font-medium flex items-center justify-center gap-1 transition-colors px-2 ${tab === key ? 'text-emerald-500 border-b-2 border-emerald-500' : 'text-muted-foreground'}`}
-              >
-                {icon} <span className="hidden sm:inline">{label}</span><span className="sm:hidden">{label.split(' ')[0]}</span>
-              </button>
-            ))}
           </div>
 
           <div className="overflow-y-auto flex-1 p-5">
@@ -216,6 +195,15 @@ export function StatisticsModal({ checkIns, currentUser, onClose }: StatisticsMo
             {/* TITLES TAB */}
             {tab === 'titles' && (
               <div className="space-y-3">
+                {myProfile && (
+                  <button
+                    onClick={() => setShowProfileCard(true)}
+                    className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-xl px-4 py-3 text-sm font-bold shadow-lg transition-all active:scale-95 mb-4"
+                  >
+                    <img src={currentUser.photoURL || ''} alt="" className="w-6 h-6 rounded-full border border-white/30" />
+                    Xem Profile Card của tôi ✨
+                  </button>
+                )}
                 {stats.titles.map((title, idx) => (
                   <div key={idx} className={`flex items-center gap-4 p-4 rounded-xl border bg-gradient-to-r ${title.color} shadow-sm`}>
                     <div className="p-2 bg-background/50 rounded-lg">{title.icon}</div>
