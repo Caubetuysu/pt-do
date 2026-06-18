@@ -176,8 +176,7 @@ export function StatisticsModal({ checkIns, currentUser, onClose }: StatisticsMo
 
   return (
     <>
-      <div className="fixed inset-0 z-[9999] bg-black/40 flex items-center justify-center p-4">
-        <div className="bg-card w-full max-w-lg rounded-2xl shadow-2xl border border-border overflow-hidden max-h-[90vh] flex flex-col">
+      <div className="absolute top-0 left-0 h-full w-full sm:w-96 bg-card z-[2000] shadow-2xl border-r border-border flex flex-col animate-in slide-in-from-left-full duration-300">
           
           {/* Simple Header */}
           <div className="flex items-center justify-between p-4 border-b border-border bg-secondary/20">
@@ -415,7 +414,6 @@ export function StatisticsModal({ checkIns, currentUser, onClose }: StatisticsMo
             )}
 
           </div>
-        </div>
       </div>
 
       {/* Profile Card Modal */}

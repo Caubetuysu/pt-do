@@ -401,8 +401,8 @@ export default function DiaryPage() {
   return (
     <div className="relative h-screen w-full bg-background overflow-hidden">
       
-      {/* Friends Panel - Sliding from right */}
-      <div className={`absolute top-0 right-0 h-full w-full sm:w-96 bg-card z-[2000] shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${showFriends ? 'translate-x-0' : 'translate-x-full'}`}>
+      {/* Friends Panel - Sliding from left */}
+      <div className={`absolute top-0 left-0 h-full w-full sm:w-96 bg-card z-[2000] shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${showFriends ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-4 border-b border-border bg-background flex items-center justify-between shadow-sm sticky top-0">
           <h2 className="text-lg font-bold flex items-center gap-2">
             <Users className="w-5 h-5 text-blue-500" />
