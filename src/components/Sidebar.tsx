@@ -208,6 +208,7 @@ export function Sidebar() {
             <button 
               key={item.name}
               onClick={item.action}
+              title={isCollapsed ? item.name : undefined}
               className="w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group relative text-white/60 hover:text-white hover:bg-white/[0.04] border border-transparent cursor-pointer"
             >
               <Icon className={`w-5 h-5 shrink-0 transition-transform group-hover:scale-110 group-hover:${item.color}`} />
