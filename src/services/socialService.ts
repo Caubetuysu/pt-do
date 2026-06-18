@@ -15,7 +15,8 @@ import {
   increment,
   onSnapshot,
   Unsubscribe,
-  limit
+  limit,
+  Timestamp
 } from 'firebase/firestore';
 import { diaryService, CheckIn } from './diaryService';
 
@@ -25,6 +26,8 @@ export interface SharedTrip {
   creatorUid: string;
   memberUids: string[];
   createdAt: Date | null;
+  startDate: Date | null; // Trip starts from this date (can be set to past)
+  endDate: Date | null;   // null = still active
   isActive: boolean;
 }
 
@@ -50,12 +53,14 @@ const COMMENTS_COLLECTION = 'comments';
 
 export const socialService = {
   // --- Shared Trips ---
-  async createTrip(creatorUid: string, name: string): Promise<string> {
+  async createTrip(creatorUid: string, name: string, startDate?: Date): Promise<string> {
     const ref = await addDoc(collection(db, TRIPS_COLLECTION), {
       name,
       creatorUid,
       memberUids: [creatorUid],
       createdAt: serverTimestamp(),
+      startDate: startDate ? Timestamp.fromDate(startDate) : serverTimestamp(),
+      endDate: null,
       isActive: true
     });
     return ref.id;
@@ -77,8 +82,23 @@ export const socialService = {
     return snap.docs.map(d => ({
       id: d.id,
       ...d.data(),
-      createdAt: d.data().createdAt?.toDate() || null
+      createdAt: d.data().createdAt?.toDate() || null,
+      startDate: d.data().startDate?.toDate() || null,
+      endDate: d.data().endDate?.toDate() || null,
     }) as SharedTrip);
+  },
+
+  async endTrip(tripId: string): Promise<void> {
+    await updateDoc(doc(db, TRIPS_COLLECTION, tripId), {
+      isActive: false,
+      endDate: serverTimestamp()
+    });
+  },
+
+  async updateTripStartDate(tripId: string, startDate: Date): Promise<void> {
+    await updateDoc(doc(db, TRIPS_COLLECTION, tripId), {
+      startDate: Timestamp.fromDate(startDate)
+    });
   },
 
   // --- Reactions ---
@@ -131,28 +151,36 @@ export const socialService = {
     trip: SharedTrip,
     callback: (items: { uid: string; checkIn: CheckIn }[]) => void
   ): Unsubscribe {
-    // Listen to the travel_diary collection for changes from trip members
     const q = query(
       collection(db, 'travel_diary'),
       where('userId', 'in', trip.memberUids.slice(0, 10)),
-      limit(50)
+      limit(100)
     );
 
     return onSnapshot(q, (snap) => {
+      const startMs = trip.startDate ? trip.startDate.getTime() : 0;
+      const endMs = trip.endDate ? trip.endDate.getTime() : Date.now() + 999999999;
+
       const items = snap.docs
         .map(d => {
           const data = d.data();
+          const timestamp: Date = data.timestamp?.toDate() || new Date();
           return {
             uid: data.userId as string,
             checkIn: {
               id: d.id,
               ...data,
-              timestamp: data.timestamp?.toDate() || new Date(),
+              timestamp,
             } as CheckIn
           };
         })
+        // Filter to only check-ins within the trip's time window
+        .filter(item => {
+          const t = item.checkIn.timestamp.getTime();
+          return t >= startMs && t <= endMs;
+        })
         .sort((a, b) => b.checkIn.timestamp.getTime() - a.checkIn.timestamp.getTime())
-        .slice(0, 30);
+        .slice(0, 50);
       callback(items);
     });
   },

@@ -544,6 +544,7 @@ export default function DiaryPage() {
           onCancelDraft={() => setDraftLocation(null)}
           hotspots={hotspots}
           routeDays={routedDays}
+          friendCheckIns={friendCheckInGroups}
         />
       </div>
 

@@ -67,6 +67,7 @@ interface BaseMapProps {
   onCancelDraft?: () => void;
   hotspots?: { lat: number, lng: number, count: number }[];
   routeDays?: { dateStr: string, points: { lat: number, lng: number }[] }[];
+  friendCheckIns?: { uid: string; name: string; photo: string; checkIns: CheckIn[] }[];
 }
 
 // Map Event Handler Component
@@ -154,8 +155,19 @@ function DraftMarker({
   );
 }
 
+const FRIEND_COLORS = ['#3b82f6', '#a855f7', '#f59e0b', '#ec4899', '#06b6d4'];
+
+const createFriendIcon = (color: string) => {
+  return L.divIcon({
+    html: `<div style="background:${color}" class="w-5 h-5 rounded-full border-2 border-white flex items-center justify-center shadow-md"></div>`,
+    className: 'custom-friend-icon',
+    iconSize: [20, 20],
+    iconAnchor: [10, 20],
+  });
+};
+
 export default function BaseMap({ 
-  checkIns, onMapClick, userLocation, draftLocation, draftAddress, onConfirmDraft, onCancelDraft, hotspots, routeDays 
+  checkIns, onMapClick, userLocation, draftLocation, draftAddress, onConfirmDraft, onCancelDraft, hotspots, routeDays, friendCheckIns 
 }: BaseMapProps) {
   const defaultCenter: [number, number] = [10.762622, 106.660172]; // HCMC Default
 
@@ -221,6 +233,34 @@ export default function BaseMap({
           </Marker>
         ))}
       </MarkerClusterGroup>
+
+      {/* Friend check-ins — rendered outside cluster so they don't mix with user's pins */}
+      {friendCheckIns && friendCheckIns.map((friend, friendIdx) => {
+        const color = FRIEND_COLORS[friendIdx % FRIEND_COLORS.length];
+        const icon = createFriendIcon(color);
+        return friend.checkIns.map((checkIn) => (
+          <Marker
+            key={`friend-${friend.uid}-${checkIn.id}`}
+            position={[checkIn.location.lat, checkIn.location.lng]}
+            icon={icon}
+          >
+            <Popup>
+              <div className="p-1">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-3 h-3 rounded-full border border-white" style={{ background: color }} />
+                  <p className="font-semibold text-sm">{friend.name}</p>
+                </div>
+                <p className="text-xs text-gray-500 mb-1">
+                  {checkIn.timestamp.toLocaleDateString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                </p>
+                {checkIn.address && <p className="text-xs text-gray-400 mb-1 line-clamp-2">{checkIn.address}</p>}
+                <p className="text-sm">{checkIn.activityText}</p>
+                {checkIn.mood && <p className="text-base mt-1">{checkIn.mood}</p>}
+              </div>
+            </Popup>
+          </Marker>
+        ));
+      })}
     </MapContainer>
   );
 }
