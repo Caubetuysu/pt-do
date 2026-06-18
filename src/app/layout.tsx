@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "PT.DO - Nhật Ký Hành Trình & Chia Sẻ Bạn Bè",
   description: "Ứng dụng To-Do List & Deadline Management cho sinh viên",
   icons: {
-    icon: "/logo.png",
+    icon: "/favicon.png",
     apple: "/logo.png",
   },
 };
