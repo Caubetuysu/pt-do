@@ -13,8 +13,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PT.DO - Quản lý Deadline & Ghi chú",
+  title: "PT.DO - Nhật Ký Hành Trình & Chia Sẻ Bạn Bè",
   description: "Ứng dụng To-Do List & Deadline Management cho sinh viên",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
