@@ -21,7 +21,10 @@ import {
   Users,
   Target,
   MapPin,
-  Plane
+  Plane,
+  Plus,
+  Smile,
+  Trophy
 } from 'lucide-react';
 
 export function Sidebar() {
@@ -92,10 +95,34 @@ export function Sidebar() {
       }
     },
     {
-      name: 'Thống kê',
+      name: 'Danh Hiệu',
       icon: Award,
       color: 'text-yellow-400',
-      action: () => useStore.getState().setShowStats(true)
+      action: () => useStore.getState().setShowStats(true, 'titles')
+    },
+    {
+      name: 'Nhiệm vụ',
+      icon: Target,
+      color: 'text-rose-400',
+      action: () => useStore.getState().setShowStats(true, 'quests')
+    },
+    {
+      name: 'Mục tiêu cá nhân',
+      icon: Plus,
+      color: 'text-emerald-400',
+      action: () => useStore.getState().setShowStats(true, 'custom')
+    },
+    {
+      name: 'Tâm trạng',
+      icon: Smile,
+      color: 'text-blue-400',
+      action: () => useStore.getState().setShowStats(true, 'mood')
+    },
+    {
+      name: 'Bảng xếp hạng',
+      icon: Trophy,
+      color: 'text-amber-400',
+      action: () => useStore.getState().setShowStats(true, 'leaderboard')
     }
   ];
 

@@ -7,6 +7,7 @@ import { friendService } from '@/services/friendService';
 import { userService, UserProfile, getLevelTitle } from '@/services/userService';
 import { ProfileCardModal } from './ProfileCardModal';
 import { X, Award, Map, Navigation, Moon, Coffee, Home, Zap, Target, Trophy, Users, Plus, Trash2, RefreshCw, Smile } from 'lucide-react';
+import { useStore } from '@/store/useStore';
 
 interface StatisticsModalProps {
   checkIns: CheckIn[];
@@ -41,7 +42,8 @@ const MOOD_COLORS: Record<string, string> = {
 const QUEST_EMOJIS = ['🎯', '⚡', '🌟', '🏆', '🚀', '💎', '🔥', '🌈'];
 
 export function StatisticsModal({ checkIns, currentUser, onClose }: StatisticsModalProps) {
-  const [tab, setTab] = useState<'titles'|'quests'|'custom'|'mood'|'leaderboard'>('titles');
+  const tab = useStore(state => state.statsActiveTab);
+  const setTab = (newTab: 'titles'|'quests'|'custom'|'mood'|'leaderboard') => useStore.getState().setShowStats(true, newTab);
   const [quests, setQuests] = useState<Quest[]>([]);
   const [customQuests, setCustomQuests] = useState<CustomQuest[]>([]);
   const [leaderboard, setLeaderboard] = useState<UserProfile[]>([]);

@@ -10,6 +10,7 @@ interface AppState {
   showWrapUp: boolean;
   showFriends: boolean;
   showStats: boolean;
+  statsActiveTab: 'titles' | 'quests' | 'custom' | 'mood' | 'leaderboard';
   showTimeline: boolean;
   triggerLocate: number;
   triggerPin: number;
@@ -31,7 +32,7 @@ interface AppState {
   // New Actions
   setShowWrapUp: (show: boolean) => void;
   setShowFriends: (show: boolean) => void;
-  setShowStats: (show: boolean) => void;
+  setShowStats: (show: boolean, tab?: 'titles' | 'quests' | 'custom' | 'mood' | 'leaderboard') => void;
   setShowTimeline: (show: boolean) => void;
   setTriggerLocate: () => void;
   setTriggerPin: () => void;
@@ -44,6 +45,7 @@ export const useStore = create<AppState>((set) => ({
   showWrapUp: false,
   showFriends: false,
   showStats: false,
+  statsActiveTab: 'titles',
   showTimeline: false,
   triggerLocate: 0,
   triggerPin: 0,
@@ -85,7 +87,7 @@ export const useStore = create<AppState>((set) => ({
   setSidebarCollapsed: (collapsed) => set({ isSidebarCollapsed: collapsed }),
   setShowWrapUp: (show) => set({ showWrapUp: show }),
   setShowFriends: (show) => set({ showFriends: show }),
-  setShowStats: (show) => set({ showStats: show }),
+  setShowStats: (show, tab = 'titles') => set({ showStats: show, statsActiveTab: tab }),
   setShowTimeline: (show) => set({ showTimeline: show }),
   setTriggerLocate: () => set((state) => ({ triggerLocate: state.triggerLocate + 1 })),
   setTriggerPin: () => set((state) => ({ triggerPin: state.triggerPin + 1 })),
