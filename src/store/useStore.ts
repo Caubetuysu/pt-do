@@ -11,6 +11,7 @@ interface AppState {
   showFriends: boolean;
   showStats: boolean;
   triggerLocate: number;
+  triggerPin: number;
 
   // Task Actions
   addTask: (task: Task) => void;
