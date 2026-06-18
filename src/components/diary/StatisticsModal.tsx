@@ -174,7 +174,7 @@ export function StatisticsModal({ checkIns, currentUser, onClose }: StatisticsMo
 
   return (
     <>
-      <div className="fixed inset-0 z-[9999] bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[9999] bg-black/40 flex items-center justify-center p-4">
         <div className="bg-card w-full max-w-lg rounded-2xl shadow-2xl border border-border overflow-hidden max-h-[90vh] flex flex-col">
           
           {/* Header */}
