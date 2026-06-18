@@ -5,27 +5,27 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-background: #191919;
-  --color-foreground: rgba(255, 255, 255, 0.81);
-  --color-card: #202020;
-  --color-card-foreground: rgba(255, 255, 255, 0.81);
-  --color-popover: #202020;
-  --color-popover-foreground: rgba(255, 255, 255, 0.81);
-  --color-primary: #2eaadc;
+  --color-background: #09090B;
+  --color-foreground: rgba(255, 255, 255, 0.85);
+  --color-card: #121214;
+  --color-card-foreground: rgba(255, 255, 255, 0.85);
+  --color-popover: #121214;
+  --color-popover-foreground: rgba(255, 255, 255, 0.85);
+  --color-primary: #10B981; /* Default primary color to Emerald-500 */
   --color-primary-foreground: #ffffff;
-  --color-secondary: #2f2f2f;
-  --color-secondary-foreground: rgba(255, 255, 255, 0.81);
+  --color-secondary: #1A1A1E;
+  --color-secondary-foreground: rgba(255, 255, 255, 0.85);
   --color-muted: transparent;
   --color-muted-foreground: rgba(255, 255, 255, 0.44);
-  --color-accent: #2f2f2f;
-  --color-accent-foreground: rgba(255, 255, 255, 0.81);
-  --color-destructive: #eb5757;
+  --color-accent: #1A1A1E;
+  --color-accent-foreground: rgba(255, 255, 255, 0.85);
+  --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
-  --color-border: rgba(255, 255, 255, 0.094);
-  --color-input: rgba(255, 255, 255, 0.094);
-  --color-ring: rgba(255, 255, 255, 0.44);
-  --color-sidebar: #202020;
-  --radius: 0.25rem; /* Notion uses smaller border radius */
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-input: rgba(255, 255, 255, 0.06);
+  --color-ring: rgba(16, 185, 129, 0.4);
+  --color-sidebar: #121214;
+  --radius: 0.75rem; /* Upgraded to 0.75rem for modern smooth corners */
 }
 
 :root {
@@ -53,7 +53,7 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
+  --radius: 0.75rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -74,6 +74,47 @@ body {
 @layer utilities {
   .glow-red {
     box-shadow: 0 0 15px rgba(220, 38, 38, 0.5);
+  }
+  
+  .glass-panel {
+    background: rgba(18, 18, 20, 0.65) !important;
+    backdrop-filter: blur(16px) saturate(120%);
+    -webkit-backdrop-filter: blur(16px) saturate(120%);
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+  
+  .glass-card {
+    background: rgba(255, 255, 255, 0.03) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .glass-card:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    transform: translateY(-1px);
+  }
+
+  .neon-border-q1 {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.08), inset 0 0 15px rgba(239, 68, 68, 0.03);
+    border: 1px solid rgba(239, 68, 68, 0.25) !important;
+  }
+  
+  .neon-border-q2 {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.08), inset 0 0 15px rgba(16, 185, 129, 0.03);
+    border: 1px solid rgba(16, 185, 129, 0.25) !important;
+  }
+  
+  .neon-border-q3 {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.08), inset 0 0 15px rgba(59, 130, 246, 0.03);
+    border: 1px solid rgba(59, 130, 246, 0.25) !important;
+  }
+  
+  .neon-border-q4 {
+    box-shadow: 0 0 20px rgba(161, 161, 170, 0.04), inset 0 0 15px rgba(161, 161, 170, 0.01);
+    border: 1px solid rgba(161, 161, 170, 0.2) !important;
   }
 }
 
@@ -121,32 +162,32 @@ body {
 }
 
 .dark {
-  --background: #191919;
-  --foreground: rgba(255, 255, 255, 0.81);
-  --card: #202020;
-  --card-foreground: rgba(255, 255, 255, 0.81);
-  --popover: #202020;
-  --popover-foreground: rgba(255, 255, 255, 0.81);
-  --primary: #2eaadc;
+  --background: #09090B;
+  --foreground: rgba(255, 255, 255, 0.85);
+  --card: #121214;
+  --card-foreground: rgba(255, 255, 255, 0.85);
+  --popover: #121214;
+  --popover-foreground: rgba(255, 255, 255, 0.85);
+  --primary: #10B981;
   --primary-foreground: #ffffff;
-  --secondary: #2f2f2f;
-  --secondary-foreground: rgba(255, 255, 255, 0.81);
+  --secondary: #1A1A1E;
+  --secondary-foreground: rgba(255, 255, 255, 0.85);
   --muted: transparent;
   --muted-foreground: rgba(255, 255, 255, 0.44);
-  --accent: #2f2f2f;
-  --accent-foreground: rgba(255, 255, 255, 0.81);
-  --destructive: #eb5757;
-  --border: rgba(255, 255, 255, 0.094);
-  --input: rgba(255, 255, 255, 0.094);
-  --ring: rgba(255, 255, 255, 0.44);
-  --sidebar: #202020;
-  --sidebar-foreground: rgba(255, 255, 255, 0.81);
-  --sidebar-primary: #2eaadc;
+  --accent: #1A1A1E;
+  --accent-foreground: rgba(255, 255, 255, 0.85);
+  --destructive: #ef4444;
+  --border: rgba(255, 255, 255, 0.06);
+  --input: rgba(255, 255, 255, 0.06);
+  --ring: rgba(16, 185, 129, 0.4);
+  --sidebar: #121214;
+  --sidebar-foreground: rgba(255, 255, 255, 0.85);
+  --sidebar-primary: #10B981;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #2f2f2f;
-  --sidebar-accent-foreground: rgba(255, 255, 255, 0.81);
-  --sidebar-border: rgba(255, 255, 255, 0.094);
-  --sidebar-ring: rgba(255, 255, 255, 0.44);
+  --sidebar-accent: #1A1A1E;
+  --sidebar-accent-foreground: rgba(255, 255, 255, 0.85);
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-ring: rgba(16, 185, 129, 0.4);
 }
 
 @layer base {
@@ -158,6 +199,22 @@ body {
   }
   html {
     @apply font-sans;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
   }
 }
 

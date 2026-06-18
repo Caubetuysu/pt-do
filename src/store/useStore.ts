@@ -4,6 +4,7 @@ import { Task, Note } from '../types';
 interface AppState {
   tasks: Task[];
   notes: Note[];
+  isSidebarCollapsed: boolean;
   
   // Task Actions
   addTask: (task: Task) => void;
@@ -15,11 +16,15 @@ interface AppState {
   addNote: (note: Note) => void;
   updateNote: (id: string, updates: Partial<Note>) => void;
   deleteNote: (id: string) => void;
+
+  // Sidebar Actions
+  setSidebarCollapsed: (collapsed: boolean) => void;
 }
 
 export const useStore = create<AppState>((set) => ({
   tasks: [],
   notes: [],
+  isSidebarCollapsed: false,
 
   addTask: (task) => set((state) => ({ tasks: [...state.tasks, task] })),
   
@@ -53,5 +58,7 @@ export const useStore = create<AppState>((set) => ({
 
   deleteNote: (id) => set((state) => ({
     notes: state.notes.filter(n => n.id !== id)
-  }))
+  })),
+
+  setSidebarCollapsed: (collapsed) => set({ isSidebarCollapsed: collapsed })
 }));

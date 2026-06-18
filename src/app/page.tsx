@@ -455,82 +455,88 @@ export default function DiaryPage() {
         {/* Toggle Sidebar Button (Airplane) */}
         <button 
           onClick={() => setIsSidebarOpen(true)}
-          className={`absolute top-24 left-4 z-[1000] bg-emerald-500 text-white p-3 rounded-xl shadow-lg hover:bg-emerald-600 transition-all active:scale-95 flex items-center gap-2 ${isSidebarOpen ? 'opacity-0 -translate-x-4 pointer-events-none' : 'opacity-100 translate-x-0'}`}
+          className={`absolute top-24 left-4 z-[1000] bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-4 py-3 rounded-xl shadow-[0_4px_20px_rgba(16,185,129,0.25)] hover:shadow-[0_4px_25px_rgba(16,185,129,0.4)] hover:from-emerald-400 hover:to-teal-400 transition-all active:scale-95 flex items-center gap-2 cursor-pointer ${isSidebarOpen ? 'opacity-0 -translate-x-4 pointer-events-none' : 'opacity-100 translate-x-0'}`}
           title="Mở Nhật Ký Hành Trình"
         >
-          <Plane className="w-6 h-6" />
-          <span className="font-semibold hidden sm:inline">Nhật Ký</span>
+          <Plane className="w-5 h-5" />
+          <span className="font-semibold text-sm hidden sm:inline">Nhật Ký Hành Trình</span>
         </button>
 
         {/* Distance Overlay */}
-        <div className="absolute top-6 right-6 z-[1000] bg-background/90 backdrop-blur-md px-4 py-3 rounded-xl shadow-lg border border-border flex items-center gap-3">
-          <div className="bg-emerald-100 dark:bg-emerald-500/20 p-2 rounded-full">
-            <Navigation className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+        <div className="absolute top-6 right-6 z-[1000] glass-panel px-4 py-3 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.37)] flex items-center gap-3">
+          <div className="bg-emerald-500/20 p-2 rounded-full border border-emerald-500/20">
+            <Navigation className="w-5 h-5 text-emerald-400 animate-pulse" />
           </div>
           <div>
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Tổng Quãng Đường</p>
-            <p className="text-xl font-bold text-foreground">
+            <p className="text-[10px] text-white/50 font-semibold uppercase tracking-wider">Tổng Quãng Đường</p>
+            <p className="text-xl font-bold text-white leading-tight">
               {isRouting ? (
-                <span className="text-sm font-normal animate-pulse text-emerald-500">Đang tính...</span>
+                <span className="text-sm font-normal animate-pulse text-emerald-400">Đang tính...</span>
               ) : (
                 <>
-                  {routedDistance > 10 ? Math.round(routedDistance) : routedDistance.toFixed(1)} <span className="text-sm font-normal text-muted-foreground">km</span>
+                  {routedDistance > 10 ? Math.round(routedDistance) : routedDistance.toFixed(1)} <span className="text-sm font-normal text-white/60">km</span>
                 </>
               )}
             </p>
           </div>
         </div>
 
-        {/* Floating Actions */}
-        <div className="absolute bottom-6 right-6 z-[1000] flex flex-col gap-3 items-end">
-          {/* Wrap-up Button */}
-          <button 
-            onClick={() => setShowWrapUp(true)}
-            className="bg-gradient-to-br from-violet-500 to-purple-600 text-white p-3 rounded-full shadow-lg hover:from-violet-400 hover:to-purple-500 transition-all active:scale-95 flex items-center justify-center"
-            title="Wrap-up Năm"
-          >
-            <Sparkles className="w-6 h-6" />
-          </button>
-
-          {/* Friends Button */}
-          <button 
-            onClick={() => { setShowFriends(true); setIsSidebarOpen(false); }}
-            className="bg-background text-foreground p-3 rounded-full shadow-lg border border-border hover:bg-secondary transition-colors active:scale-95 flex items-center justify-center"
-            title="Bạn Bè"
-          >
-            <Users className="w-6 h-6 text-blue-500" />
-          </button>
-
-          {/* Stats Button */}
-          <button 
-            onClick={() => setShowStats(true)}
-            className="bg-background text-foreground p-3 rounded-full shadow-lg border border-border hover:bg-secondary transition-colors active:scale-95 flex items-center justify-center"
-            title="Bảng Phông Thần (Thống Kê)"
-          >
-            <Award className="w-6 h-6 text-yellow-500" />
-          </button>
-
-          {/* GPS Locate Only Button */}
-          <button 
-            onClick={handleFindMyLocation}
-            disabled={isLocating}
-            className="bg-background text-foreground p-3 rounded-full shadow-lg border border-border hover:bg-secondary transition-colors active:scale-95 disabled:opacity-70 flex items-center justify-center"
-            title="Định vị vị trí của tôi"
-          >
-            <LocateFixed className={`w-6 h-6 text-blue-500 ${isLocating ? 'animate-pulse' : ''}`} />
-          </button>
-
-          {/* Floating Action Button for Check-in at GPS */}
+        {/* Floating Actions Unified Glass Panel */}
+        <div className="absolute bottom-6 right-6 z-[1000] glass-panel p-3 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.37)] flex flex-col gap-3 items-center w-[220px] sm:w-[240px]">
+          {/* Main Action: Ghim vị trí của tôi */}
           <button 
             onClick={handleLocateMe}
             disabled={isLocating}
-            className="bg-emerald-500 text-white p-4 rounded-full shadow-xl hover:bg-emerald-600 transition-transform active:scale-95 disabled:opacity-70 flex items-center gap-2"
+            className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white py-3 px-4 rounded-xl shadow-lg shadow-emerald-950/20 transition-all active:scale-95 disabled:opacity-70 flex items-center justify-center gap-2 cursor-pointer font-semibold"
           >
-            <MapPin className={`w-6 h-6 ${isLocating ? 'animate-bounce' : ''}`} />
-            <span className="font-semibold hidden sm:inline">
-              {isLocating ? 'Đang lấy vị trí...' : 'Ghim vị trí của tôi'}
+            <MapPin className={`w-5 h-5 shrink-0 ${isLocating ? 'animate-bounce' : ''}`} />
+            <span className="text-sm truncate">
+              {isLocating ? 'Đang định vị...' : 'Ghim vị trí của tôi'}
             </span>
           </button>
+
+          {/* Divider */}
+          <div className="w-full h-[1px] bg-white/[0.08]"></div>
+
+          {/* Utility Buttons row */}
+          <div className="grid grid-cols-4 gap-2 w-full">
+            {/* Wrap-up Button */}
+            <button 
+              onClick={() => setShowWrapUp(true)}
+              className="bg-white/5 hover:bg-white/10 text-violet-400 hover:text-violet-300 p-2.5 rounded-xl border border-white/5 transition-all active:scale-95 flex items-center justify-center cursor-pointer"
+              title="Wrap-up Năm"
+            >
+              <Sparkles className="w-5 h-5" />
+            </button>
+
+            {/* Friends Button */}
+            <button 
+              onClick={() => { setShowFriends(true); setIsSidebarOpen(false); }}
+              className="bg-white/5 hover:bg-white/10 text-blue-400 hover:text-blue-300 p-2.5 rounded-xl border border-white/5 transition-all active:scale-95 flex items-center justify-center cursor-pointer"
+              title="Bạn Bè"
+            >
+              <Users className="w-5 h-5" />
+            </button>
+
+            {/* Stats Button */}
+            <button 
+              onClick={() => setShowStats(true)}
+              className="bg-white/5 hover:bg-white/10 text-yellow-400 hover:text-yellow-300 p-2.5 rounded-xl border border-white/5 transition-all active:scale-95 flex items-center justify-center cursor-pointer"
+              title="Bảng Phông Thần (Thống Kê)"
+            >
+              <Award className="w-5 h-5" />
+            </button>
+
+            {/* GPS Locate Only Button */}
+            <button 
+              onClick={handleFindMyLocation}
+              disabled={isLocating}
+              className="bg-white/5 hover:bg-white/10 text-sky-400 hover:text-sky-300 p-2.5 rounded-xl border border-white/5 transition-all active:scale-95 disabled:opacity-70 flex items-center justify-center cursor-pointer"
+              title="Định vị vị trí của tôi"
+            >
+              <LocateFixed className={`w-5 h-5 ${isLocating ? 'animate-pulse' : ''}`} />
+            </button>
+          </div>
         </div>
 
         {/* The Map */}
