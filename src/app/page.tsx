@@ -54,9 +54,10 @@ export default function DiaryPage() {
   const setShowFriends = useStore(state => state.setShowFriends);
   const triggerLocate = useStore(state => state.triggerLocate);
   const triggerPin = useStore(state => state.triggerPin);
+  const isSidebarOpen = useStore(state => state.showTimeline);
+  const setIsSidebarOpen = useStore(state => state.setShowTimeline);
   
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
@@ -471,15 +472,6 @@ export default function DiaryPage() {
 
       {/* Main Content - Map */}
       <div className="w-full h-full relative">
-        {/* Toggle Sidebar Button (Airplane) */}
-        <button 
-          onClick={() => setIsSidebarOpen(true)}
-          className={`absolute top-24 left-4 z-[1000] bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-4 py-3 rounded-xl shadow-[0_4px_20px_rgba(16,185,129,0.25)] hover:shadow-[0_4px_25px_rgba(16,185,129,0.4)] hover:from-emerald-400 hover:to-teal-400 transition-all active:scale-95 flex items-center gap-2 cursor-pointer ${isSidebarOpen ? 'opacity-0 -translate-x-4 pointer-events-none' : 'opacity-100 translate-x-0'}`}
-          title="Mở Nhật Ký Hành Trình"
-        >
-          <Plane className="w-5 h-5" />
-          <span className="font-semibold text-sm hidden sm:inline">Nhật Ký Hành Trình</span>
-        </button>
 
         {/* Distance Overlay */}
         <div className="absolute top-6 right-6 z-[1000] glass-panel px-4 py-3 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.37)] flex items-center gap-3">

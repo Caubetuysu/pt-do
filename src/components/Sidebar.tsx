@@ -20,7 +20,8 @@ import {
   Sparkles,
   Users,
   Target,
-  MapPin
+  MapPin,
+  Plane
 } from 'lucide-react';
 
 export function Sidebar() {
@@ -66,6 +67,15 @@ export function Sidebar() {
   ];
 
   const actionItems = [
+    {
+      name: 'Nhật ký Hành trình',
+      icon: Plane,
+      color: 'text-teal-400',
+      action: () => {
+        useStore.getState().setShowTimeline(true);
+        setIsCollapsed(true);
+      }
+    },
     {
       name: 'Wrap-up',
       icon: Sparkles,

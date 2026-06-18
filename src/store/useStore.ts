@@ -10,6 +10,7 @@ interface AppState {
   showWrapUp: boolean;
   showFriends: boolean;
   showStats: boolean;
+  showTimeline: boolean;
   triggerLocate: number;
   triggerPin: number;
 
@@ -31,6 +32,7 @@ interface AppState {
   setShowWrapUp: (show: boolean) => void;
   setShowFriends: (show: boolean) => void;
   setShowStats: (show: boolean) => void;
+  setShowTimeline: (show: boolean) => void;
   setTriggerLocate: () => void;
   setTriggerPin: () => void;
 }
@@ -42,6 +44,7 @@ export const useStore = create<AppState>((set) => ({
   showWrapUp: false,
   showFriends: false,
   showStats: false,
+  showTimeline: false,
   triggerLocate: 0,
   triggerPin: 0,
 
@@ -83,6 +86,7 @@ export const useStore = create<AppState>((set) => ({
   setShowWrapUp: (show) => set({ showWrapUp: show }),
   setShowFriends: (show) => set({ showFriends: show }),
   setShowStats: (show) => set({ showStats: show }),
+  setShowTimeline: (show) => set({ showTimeline: show }),
   setTriggerLocate: () => set((state) => ({ triggerLocate: state.triggerLocate + 1 })),
   setTriggerPin: () => set((state) => ({ triggerPin: state.triggerPin + 1 })),
 }));
