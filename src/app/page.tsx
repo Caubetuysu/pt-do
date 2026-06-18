@@ -16,6 +16,7 @@ import { fetchWeather, getWeatherEmoji, getWeatherDesc } from '@/services/weathe
 import { WrapUpModal } from '@/components/diary/WrapUpModal';
 import { UserProfile } from '@/services/userService';
 import { LocateFixed, Navigation, MapPin, Award, Plane, X, LogIn, LogOut, Users, Calendar, Sparkles } from 'lucide-react';
+import { useStore } from '@/store/useStore';
 
 interface Hotspot {
   lat: number;
@@ -45,11 +46,17 @@ export default function DiaryPage() {
   const [isLocating, setIsLocating] = useState(false);
   const [draftLocation, setDraftLocation] = useState<{ lat: number, lng: number } | null>(null);
   const [draftAddress, setDraftAddress] = useState<string>("Đang tải địa chỉ...");
-  const [showStats, setShowStats] = useState(false);
-  const [showWrapUp, setShowWrapUp] = useState(false);
+  const showStats = useStore(state => state.showStats);
+  const setShowStats = useStore(state => state.setShowStats);
+  const showWrapUp = useStore(state => state.showWrapUp);
+  const setShowWrapUp = useStore(state => state.setShowWrapUp);
+  const showFriends = useStore(state => state.showFriends);
+  const setShowFriends = useStore(state => state.setShowFriends);
+  const triggerLocate = useStore(state => state.triggerLocate);
+  const triggerPin = useStore(state => state.triggerPin);
+  
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [showFriends, setShowFriends] = useState(false);
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
@@ -271,6 +278,18 @@ export default function DiaryPage() {
       setIsLocating(false);
     }
   };
+
+  useEffect(() => {
+    if (triggerLocate > 0) {
+      handleFindMyLocation();
+    }
+  }, [triggerLocate]);
+
+  useEffect(() => {
+    if (triggerPin > 0) {
+      handleLocateMe();
+    }
+  }, [triggerPin]);
 
   const handleSubmitCheckIn = async (text: string, mood?: string) => {
     if (!selectedLocation || !currentUser) return;
@@ -495,48 +514,16 @@ export default function DiaryPage() {
             </span>
           </button>
 
-          {/* Divider */}
-          <div className="w-full h-[1px] bg-white/[0.08]"></div>
-
-          {/* Utility Buttons row */}
-          <div className="grid grid-cols-4 gap-2 w-full">
-            {/* Wrap-up Button */}
-            <button 
-              onClick={() => setShowWrapUp(true)}
-              className="bg-white/5 hover:bg-white/10 text-violet-400 hover:text-violet-300 p-2.5 rounded-xl border border-white/5 transition-all active:scale-95 flex items-center justify-center cursor-pointer"
-              title="Wrap-up Năm"
-            >
-              <Sparkles className="w-5 h-5" />
-            </button>
-
-            {/* Friends Button */}
-            <button 
-              onClick={() => { setShowFriends(true); setIsSidebarOpen(false); }}
-              className="bg-white/5 hover:bg-white/10 text-blue-400 hover:text-blue-300 p-2.5 rounded-xl border border-white/5 transition-all active:scale-95 flex items-center justify-center cursor-pointer"
-              title="Bạn Bè"
-            >
-              <Users className="w-5 h-5" />
-            </button>
-
-            {/* Stats Button */}
-            <button 
-              onClick={() => setShowStats(true)}
-              className="bg-white/5 hover:bg-white/10 text-yellow-400 hover:text-yellow-300 p-2.5 rounded-xl border border-white/5 transition-all active:scale-95 flex items-center justify-center cursor-pointer"
-              title="Bảng Phông Thần (Thống Kê)"
-            >
-              <Award className="w-5 h-5" />
-            </button>
-
-            {/* GPS Locate Only Button */}
-            <button 
-              onClick={handleFindMyLocation}
-              disabled={isLocating}
-              className="bg-white/5 hover:bg-white/10 text-sky-400 hover:text-sky-300 p-2.5 rounded-xl border border-white/5 transition-all active:scale-95 disabled:opacity-70 flex items-center justify-center cursor-pointer"
-              title="Định vị vị trí của tôi"
-            >
-              <LocateFixed className={`w-5 h-5 ${isLocating ? 'animate-pulse' : ''}`} />
-            </button>
-          </div>
+          {/* GPS Locate Only Button */}
+          <button 
+            onClick={handleFindMyLocation}
+            disabled={isLocating}
+            className="w-full bg-white/5 hover:bg-white/10 text-sky-400 hover:text-sky-300 py-2 px-4 rounded-xl border border-white/5 transition-all active:scale-95 disabled:opacity-70 flex items-center justify-center gap-2 cursor-pointer text-sm font-medium"
+            title="Tìm vị trí hiện tại"
+          >
+            <LocateFixed className={`w-4 h-4 ${isLocating ? 'animate-pulse' : ''}`} />
+            Vị trí hiện tại
+          </button>
         </div>
 
         {/* The Map */}

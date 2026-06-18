@@ -6,6 +6,12 @@ interface AppState {
   notes: Note[];
   isSidebarCollapsed: boolean;
   
+  // Modal states
+  showWrapUp: boolean;
+  showFriends: boolean;
+  showStats: boolean;
+  triggerLocate: number;
+
   // Task Actions
   addTask: (task: Task) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
@@ -19,12 +25,24 @@ interface AppState {
 
   // Sidebar Actions
   setSidebarCollapsed: (collapsed: boolean) => void;
+  
+  // New Actions
+  setShowWrapUp: (show: boolean) => void;
+  setShowFriends: (show: boolean) => void;
+  setShowStats: (show: boolean) => void;
+  setTriggerLocate: () => void;
+  setTriggerPin: () => void;
 }
 
 export const useStore = create<AppState>((set) => ({
   tasks: [],
   notes: [],
   isSidebarCollapsed: false,
+  showWrapUp: false,
+  showFriends: false,
+  showStats: false,
+  triggerLocate: 0,
+  triggerPin: 0,
 
   addTask: (task) => set((state) => ({ tasks: [...state.tasks, task] })),
   
@@ -60,5 +78,10 @@ export const useStore = create<AppState>((set) => ({
     notes: state.notes.filter(n => n.id !== id)
   })),
 
-  setSidebarCollapsed: (collapsed) => set({ isSidebarCollapsed: collapsed })
+  setSidebarCollapsed: (collapsed) => set({ isSidebarCollapsed: collapsed }),
+  setShowWrapUp: (show) => set({ showWrapUp: show }),
+  setShowFriends: (show) => set({ showFriends: show }),
+  setShowStats: (show) => set({ showStats: show }),
+  setTriggerLocate: () => set((state) => ({ triggerLocate: state.triggerLocate + 1 })),
+  setTriggerPin: () => set((state) => ({ triggerPin: state.triggerPin + 1 })),
 }));

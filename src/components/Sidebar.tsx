@@ -16,7 +16,11 @@ import {
   Flame, 
   Award, 
   LogOut, 
-  LogIn
+  LogIn,
+  Sparkles,
+  Users,
+  Target,
+  MapPin
 } from 'lucide-react';
 
 export function Sidebar() {
@@ -58,18 +62,30 @@ export function Sidebar() {
       path: '/',
       icon: Map,
       color: 'text-emerald-400'
+    }
+  ];
+
+  const actionItems = [
+    {
+      name: 'Wrap-up',
+      icon: Sparkles,
+      color: 'text-violet-400',
+      action: () => useStore.getState().setShowWrapUp(true)
     },
     {
-      name: 'Ma trận',
-      path: '/matrix',
-      icon: LayoutGrid,
-      color: 'text-rose-400'
+      name: 'Bạn bè',
+      icon: Users,
+      color: 'text-blue-400',
+      action: () => {
+        useStore.getState().setShowFriends(true);
+        setIsCollapsed(true);
+      }
     },
     {
-      name: 'Ghi chú',
-      path: '/notes',
-      icon: FileText,
-      color: 'text-sky-400'
+      name: 'Thống kê',
+      icon: Award,
+      color: 'text-yellow-400',
+      action: () => useStore.getState().setShowStats(true)
     }
   ];
 
@@ -132,7 +148,6 @@ export function Sidebar() {
                   : 'text-white/60 hover:text-white hover:bg-white/[0.04] border border-transparent'
               }`}
             >
-              {/* Highlight active indicator */}
               {isActive && (
                 <div className="absolute left-0 w-1 h-6 bg-emerald-400 rounded-r-md"></div>
               )}
@@ -145,6 +160,27 @@ export function Sidebar() {
                 </span>
               )}
             </Link>
+          );
+        })}
+
+        <div className="w-full h-px bg-white/10 my-4"></div>
+
+        {actionItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <button 
+              key={item.name}
+              onClick={item.action}
+              className="w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group relative text-white/60 hover:text-white hover:bg-white/[0.04] border border-transparent cursor-pointer"
+            >
+              <Icon className={`w-5 h-5 shrink-0 transition-transform group-hover:scale-110 group-hover:${item.color}`} />
+              
+              {!isCollapsed && (
+                <span className="text-sm tracking-wide text-left">
+                  {item.name}
+                </span>
+              )}
+            </button>
           );
         })}
       </nav>
