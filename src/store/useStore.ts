@@ -85,10 +85,23 @@ export const useStore = create<AppState>((set) => ({
   })),
 
   setSidebarCollapsed: (collapsed) => set({ isSidebarCollapsed: collapsed }),
-  setShowWrapUp: (show) => set({ showWrapUp: show }),
-  setShowFriends: (show) => set({ showFriends: show }),
-  setShowStats: (show, tab = 'titles') => set({ showStats: show, statsActiveTab: tab }),
-  setShowTimeline: (show) => set({ showTimeline: show }),
+  setShowWrapUp: (show) => set((state) => ({ 
+    showWrapUp: show,
+    ...(show ? { showFriends: false, showStats: false, showTimeline: false } : {})
+  })),
+  setShowFriends: (show) => set((state) => ({ 
+    showFriends: show,
+    ...(show ? { showWrapUp: false, showStats: false, showTimeline: false } : {})
+  })),
+  setShowStats: (show, tab = 'titles') => set((state) => ({ 
+    showStats: show, 
+    statsActiveTab: tab,
+    ...(show ? { showWrapUp: false, showFriends: false, showTimeline: false } : {})
+  })),
+  setShowTimeline: (show) => set((state) => ({ 
+    showTimeline: show,
+    ...(show ? { showWrapUp: false, showFriends: false, showStats: false } : {})
+  })),
   setTriggerLocate: () => set((state) => ({ triggerLocate: state.triggerLocate + 1 })),
   setTriggerPin: () => set((state) => ({ triggerPin: state.triggerPin + 1 })),
 }));

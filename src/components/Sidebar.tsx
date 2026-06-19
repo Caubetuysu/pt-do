@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, User, signOut } from 'firebase/auth';
 import { userService, UserProfile, getLevelTitle } from '@/services/userService';
@@ -29,6 +29,7 @@ import {
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const isCollapsed = useStore(state => state.isSidebarCollapsed);
   const setIsCollapsed = useStore(state => state.setSidebarCollapsed);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -75,6 +76,7 @@ export function Sidebar() {
       icon: Plane,
       color: 'text-teal-400',
       action: () => {
+        if (pathname !== '/') router.push('/');
         useStore.getState().setShowTimeline(true);
         setIsCollapsed(true);
       }
@@ -83,13 +85,17 @@ export function Sidebar() {
       name: 'Wrap-up',
       icon: Sparkles,
       color: 'text-violet-400',
-      action: () => useStore.getState().setShowWrapUp(true)
+      action: () => {
+        if (pathname !== '/') router.push('/');
+        useStore.getState().setShowWrapUp(true);
+      }
     },
     {
       name: 'Bạn bè',
       icon: Users,
       color: 'text-blue-400',
       action: () => {
+        if (pathname !== '/') router.push('/');
         useStore.getState().setShowFriends(true);
         setIsCollapsed(true);
       }
@@ -98,31 +104,46 @@ export function Sidebar() {
       name: 'Danh Hiệu',
       icon: Award,
       color: 'text-yellow-400',
-      action: () => useStore.getState().setShowStats(true, 'titles')
+      action: () => {
+        if (pathname !== '/') router.push('/');
+        useStore.getState().setShowStats(true, 'titles');
+      }
     },
     {
       name: 'Nhiệm vụ',
       icon: Target,
       color: 'text-rose-400',
-      action: () => useStore.getState().setShowStats(true, 'quests')
+      action: () => {
+        if (pathname !== '/') router.push('/');
+        useStore.getState().setShowStats(true, 'quests');
+      }
     },
     {
       name: 'Mục tiêu cá nhân',
       icon: Plus,
       color: 'text-emerald-400',
-      action: () => useStore.getState().setShowStats(true, 'custom')
+      action: () => {
+        if (pathname !== '/') router.push('/');
+        useStore.getState().setShowStats(true, 'custom');
+      }
     },
     {
       name: 'Tâm trạng',
       icon: Smile,
       color: 'text-blue-400',
-      action: () => useStore.getState().setShowStats(true, 'mood')
+      action: () => {
+        if (pathname !== '/') router.push('/');
+        useStore.getState().setShowStats(true, 'mood');
+      }
     },
     {
       name: 'Bảng xếp hạng',
       icon: Trophy,
       color: 'text-amber-400',
-      action: () => useStore.getState().setShowStats(true, 'leaderboard')
+      action: () => {
+        if (pathname !== '/') router.push('/');
+        useStore.getState().setShowStats(true, 'leaderboard');
+      }
     }
   ];
 
