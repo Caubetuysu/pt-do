@@ -91,29 +91,6 @@ export default function DiaryPage() {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (currentUser && !sessionStorage.getItem('auto_checked_in')) {
-      sessionStorage.setItem('auto_checked_in', 'true');
-      
-      if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(async (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          try {
-             await diaryService.addCheckIn({
-               userId: currentUser.uid,
-               location: { lat, lng },
-               activityText: "Vừa mở app",
-               timestamp: new Date()
-             });
-             loadCheckIns(currentUser.uid);
-          } catch (e) { console.error("Auto checkin failed", e); }
-        }, (error) => {
-          console.error("Geo error:", error);
-        });
-      }
-    }
-  }, [currentUser]);
 
   const filteredCheckIns = useMemo(() => {
     if (!selectedDateFilter) return checkIns;
