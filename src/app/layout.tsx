@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PT.DO - Nhật Ký Hành Trình & Chia Sẻ Bạn Bè",
-  description: "Ứng dụng To-Do List & Deadline Management cho sinh viên",
+  title: "PT.DO",
+  description: "Ứng dụng Nhật Ký Hành Trình, ghim vị trí và chia sẻ hành trình cùng bạn bè",
   icons: {
     icon: [
       { url: "/logo.png", sizes: "32x32", type: "image/png" },
